@@ -1,0 +1,420 @@
+[
+  {
+    "id": "caminho",
+    "text": "No Caminho da Fé, cada passo é uma oração.",
+    "file": "narration/caminho.mp3",
+    "durationMs": 2856,
+    "words": [
+      {
+        "text": "No",
+        "startMs": 103,
+        "endMs": 289
+      },
+      {
+        "text": "Caminho",
+        "startMs": 303,
+        "endMs": 715
+      },
+      {
+        "text": "da",
+        "startMs": 728,
+        "endMs": 848
+      },
+      {
+        "text": "Fé",
+        "startMs": 861,
+        "endMs": 1180
+      },
+      {
+        "text": "cada",
+        "startMs": 1420,
+        "endMs": 1712
+      },
+      {
+        "text": "passo",
+        "startMs": 1726,
+        "endMs": 2124
+      },
+      {
+        "text": "é",
+        "startMs": 2138,
+        "endMs": 2178
+      },
+      {
+        "text": "uma",
+        "startMs": 2191,
+        "endMs": 2297
+      },
+      {
+        "text": "oração",
+        "startMs": 2311,
+        "endMs": 2856
+      }
+    ]
+  },
+  {
+    "id": "estrada",
+    "text": "São quilômetros de estrada, sol e poeira. E quem caminha sabe: água fresca faz toda a diferença.",
+    "file": "narration/estrada.mp3",
+    "durationMs": 7380,
+    "words": [
+      {
+        "text": "São",
+        "startMs": 103,
+        "endMs": 409
+      },
+      {
+        "text": "quilômetros",
+        "startMs": 422,
+        "endMs": 1061
+      },
+      {
+        "text": "de",
+        "startMs": 1074,
+        "endMs": 1167
+      },
+      {
+        "text": "estrada",
+        "startMs": 1180,
+        "endMs": 1699
+      },
+      {
+        "text": "sol",
+        "startMs": 1965,
+        "endMs": 2257
+      },
+      {
+        "text": "e",
+        "startMs": 2271,
+        "endMs": 2324
+      },
+      {
+        "text": "poeira",
+        "startMs": 2337,
+        "endMs": 2816
+      },
+      {
+        "text": "E",
+        "startMs": 3737,
+        "endMs": 3870
+      },
+      {
+        "text": "quem",
+        "startMs": 3883,
+        "endMs": 4082
+      },
+      {
+        "text": "caminha",
+        "startMs": 4096,
+        "endMs": 4481
+      },
+      {
+        "text": "sabe",
+        "startMs": 4495,
+        "endMs": 4973
+      },
+      {
+        "text": "água",
+        "startMs": 5213,
+        "endMs": 5505
+      },
+      {
+        "text": "fresca",
+        "startMs": 5519,
+        "endMs": 6011
+      },
+      {
+        "text": "faz",
+        "startMs": 6024,
+        "endMs": 6316
+      },
+      {
+        "text": "toda",
+        "startMs": 6330,
+        "endMs": 6622
+      },
+      {
+        "text": "a",
+        "startMs": 6636,
+        "endMs": 6676
+      },
+      {
+        "text": "diferença",
+        "startMs": 6689,
+        "endMs": 7380
+      }
+    ]
+  },
+  {
+    "id": "garrafa",
+    "text": "Conheça a garrafa térmica Porteira do Céu.",
+    "file": "narration/garrafa.mp3",
+    "durationMs": 2909,
+    "words": [
+      {
+        "text": "Conheça",
+        "startMs": 103,
+        "endMs": 635
+      },
+      {
+        "text": "a",
+        "startMs": 648,
+        "endMs": 675
+      },
+      {
+        "text": "garrafa",
+        "startMs": 688,
+        "endMs": 1220
+      },
+      {
+        "text": "térmica",
+        "startMs": 1234,
+        "endMs": 1792
+      },
+      {
+        "text": "Porteira",
+        "startMs": 1805,
+        "endMs": 2351
+      },
+      {
+        "text": "do",
+        "startMs": 2364,
+        "endMs": 2470
+      },
+      {
+        "text": "Céu",
+        "startMs": 2484,
+        "endMs": 2909
+      }
+    ]
+  },
+  {
+    "id": "beneficios",
+    "text": "São seiscentos mililitros que mantêm sua água geladinha, com mosquetão pra prender na mochila.",
+    "file": "narration/beneficios.mp3",
+    "durationMs": 5662,
+    "words": [
+      {
+        "text": "São",
+        "startMs": 103,
+        "endMs": 409
+      },
+      {
+        "text": "seiscentos",
+        "startMs": 422,
+        "endMs": 1034
+      },
+      {
+        "text": "mililitros",
+        "startMs": 1047,
+        "endMs": 1646
+      },
+      {
+        "text": "que",
+        "startMs": 1659,
+        "endMs": 1752
+      },
+      {
+        "text": "mantêm",
+        "startMs": 1765,
+        "endMs": 2151
+      },
+      {
+        "text": "sua",
+        "startMs": 2164,
+        "endMs": 2457
+      },
+      {
+        "text": "água",
+        "startMs": 2470,
+        "endMs": 2749
+      },
+      {
+        "text": "geladinha",
+        "startMs": 2763,
+        "endMs": 3374
+      },
+      {
+        "text": "com",
+        "startMs": 3667,
+        "endMs": 3827
+      },
+      {
+        "text": "mosquetão",
+        "startMs": 3840,
+        "endMs": 4372
+      },
+      {
+        "text": "pra",
+        "startMs": 4385,
+        "endMs": 4531
+      },
+      {
+        "text": "prender",
+        "startMs": 4545,
+        "endMs": 4970
+      },
+      {
+        "text": "na",
+        "startMs": 4984,
+        "endMs": 5077
+      },
+      {
+        "text": "mochila",
+        "startMs": 5090,
+        "endMs": 5662
+      }
+    ]
+  },
+  {
+    "id": "arte",
+    "text": "E uma arte exclusiva, com a Porteira do Céu e Nossa Senhora Aparecida.",
+    "file": "narration/arte.mp3",
+    "durationMs": 4438,
+    "words": [
+      {
+        "text": "E",
+        "startMs": 103,
+        "endMs": 236
+      },
+      {
+        "text": "uma",
+        "startMs": 249,
+        "endMs": 422
+      },
+      {
+        "text": "arte",
+        "startMs": 436,
+        "endMs": 741
+      },
+      {
+        "text": "exclusiva",
+        "startMs": 755,
+        "endMs": 1433
+      },
+      {
+        "text": "com",
+        "startMs": 1699,
+        "endMs": 1858
+      },
+      {
+        "text": "a",
+        "startMs": 1872,
+        "endMs": 1912
+      },
+      {
+        "text": "Porteira",
+        "startMs": 1925,
+        "endMs": 2457
+      },
+      {
+        "text": "do",
+        "startMs": 2470,
+        "endMs": 2577
+      },
+      {
+        "text": "Céu",
+        "startMs": 2590,
+        "endMs": 2909
+      },
+      {
+        "text": "e",
+        "startMs": 2922,
+        "endMs": 2949
+      },
+      {
+        "text": "Nossa",
+        "startMs": 2962,
+        "endMs": 3255
+      },
+      {
+        "text": "Senhora",
+        "startMs": 3268,
+        "endMs": 3707
+      },
+      {
+        "text": "Aparecida",
+        "startMs": 3720,
+        "endMs": 4438
+      }
+    ]
+  },
+  {
+    "id": "cta",
+    "text": "Agora você encontra na Porteira do Céu. A sua companheira no Caminho da Fé.",
+    "file": "narration/cta.mp3",
+    "durationMs": 5625,
+    "words": [
+      {
+        "text": "Agora",
+        "startMs": 103,
+        "endMs": 635
+      },
+      {
+        "text": "você",
+        "startMs": 648,
+        "endMs": 914
+      },
+      {
+        "text": "encontra",
+        "startMs": 928,
+        "endMs": 1473
+      },
+      {
+        "text": "na",
+        "startMs": 1486,
+        "endMs": 1619
+      },
+      {
+        "text": "Porteira",
+        "startMs": 1632,
+        "endMs": 2191
+      },
+      {
+        "text": "do",
+        "startMs": 2204,
+        "endMs": 2311
+      },
+      {
+        "text": "Céu",
+        "startMs": 2324,
+        "endMs": 2736
+      },
+      {
+        "text": "A",
+        "startMs": 3657,
+        "endMs": 3763
+      },
+      {
+        "text": "sua",
+        "startMs": 3777,
+        "endMs": 4016
+      },
+      {
+        "text": "companheira",
+        "startMs": 4029,
+        "endMs": 4641
+      },
+      {
+        "text": "no",
+        "startMs": 4654,
+        "endMs": 4747
+      },
+      {
+        "text": "Caminho",
+        "startMs": 4761,
+        "endMs": 5160
+      },
+      {
+        "text": "da",
+        "startMs": 5173,
+        "endMs": 5293
+      },
+      {
+        "text": "Fé",
+        "startMs": 5306,
+        "endMs": 5625
+      }
+    ]
+  }
+]

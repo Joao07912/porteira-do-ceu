@@ -1,5 +1,5 @@
 ﻿import { useId } from "react";
-import { Easing, interpolate } from "remotion";
+import { Easing, Img, interpolate, staticFile } from "remotion";
 
 /*
  * Peregrino articulado (silhueta com luz de contorno).
@@ -149,8 +149,18 @@ const Boot: React.FC<{ f: Foot; ink: string; detail: string }> = ({ f, ink, deta
   return (
     <g>
       <path d={blob(p)} fill={ink} />
-      <path d={`M ${heel.x} ${heel.y - 2} L ${ball.x} ${ball.y - 2} L ${toe.x} ${toe.y - 2}`} stroke={detail} strokeWidth={3} fill="none" />
-      <path d={`M ${lace1.x} ${lace1.y} L ${lace2.x} ${lace2.y}`} stroke={detail} strokeWidth={2} strokeDasharray="3 4" />
+      <path
+        d={`M ${heel.x} ${heel.y - 2} L ${ball.x} ${ball.y - 2} L ${toe.x} ${toe.y - 2}`}
+        stroke={detail}
+        strokeWidth={3}
+        fill="none"
+      />
+      <path
+        d={`M ${lace1.x} ${lace1.y} L ${lace2.x} ${lace2.y}`}
+        stroke={detail}
+        strokeWidth={2}
+        strokeDasharray="3 4"
+      />
     </g>
   );
 };
@@ -165,13 +175,19 @@ export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; 
 
   // quadril: sobe no meio do apoio; nunca alto demais pra perna alcançar
   const bob = Math.cos(4 * Math.PI * (t - 0.3)) * 4 * w;
-  const reach = (f: Foot, hx: number) => f.ankle.y - Math.sqrt(Math.max(0, (THIGH + SHIN - 3) ** 2 - (f.ankle.x - hx) ** 2));
+  const reach = (f: Foot, hx: number) =>
+    f.ankle.y - Math.sqrt(Math.max(0, (THIGH + SHIN - 3) ** 2 - (f.ankle.x - hx) ** 2));
   const hipX = 0;
   const hipY = Math.max(-197 - bob - 3 * (1 - w), reach(nearFoot, hipX + 4), reach(farFoot, hipX - 4));
   const breath = Math.sin(fr / 22) * (1 - w);
   const pelvis = v(hipX, hipY + breath * 1.2);
 
-  const lean = 8 * w + 2 + breath * 0.8 + Math.sin(4 * Math.PI * t) * 1.2 * w - 9 * ramp(drink, 0.25, 0.4) * (1 - ramp(drink, 0.7, 0.85));
+  const lean =
+    8 * w +
+    2 +
+    breath * 0.8 +
+    Math.sin(4 * Math.PI * t) * 1.2 * w -
+    9 * ramp(drink, 0.25, 0.4) * (1 - ramp(drink, 0.7, 0.85));
   const spineUp = -90 + lean;
   const S = frame(pelvis, spineUp);
   const chest = S(80, 0);
@@ -191,7 +207,7 @@ export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; 
   const legFar = ik(hipFar, farFoot.ankle, THIGH, SHIN, -1);
 
   // cajado (mão de trás): ponta fincada enquanto o corpo passa
-  const sp = (((t % 1) + 1) % 1);
+  const sp = ((t % 1) + 1) % 1;
   const plant = 0.55;
   let tip: V;
   if (sp < plant) {
@@ -255,19 +271,76 @@ export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; 
   };
 };
 
-const Bottle: React.FC<{ c: V; angle: number; glow: number }> = ({ c, angle, glow }) => (
-  <g transform={`translate(${c.x} ${c.y}) rotate(${angle})`}>
-    <rect x={-11} y={-34} width={22} height={60} rx={7} fill="#f2eee6" />
-    <rect x={-11} y={-20} width={22} height={34} fill="#d9873f" />
-    <rect x={-11} y={-6} width={22} height={5} fill="#2b4c8a" />
-    <rect x={-11} y={6} width={22} height={6} fill="#5c7a3a" />
-    <rect x={-11} y={-34} width={6} height={60} rx={3} fill="rgba(255,255,255,0.55)" />
-    <rect x={-9} y={-43} width={18} height={10} rx={2} fill="#111" />
-    <rect x={-4} y={-50} width={8} height={8} rx={2} fill="#111" />
-    {glow > 0 && <rect x={-20} y={-58} width={40} height={94} rx={16} fill="none" stroke="#ffe3a6" strokeWidth={4} opacity={glow} />}
-  </g>
-);
-
+// garrafa pequena com a estampa real (Arte.jpg) cobrindo o corpo inteiro
+const ART_W = 111; // largura da arte em unidades (comprimida como na sublimação)
+const Bottle: React.FC<{ c: V; angle: number; glow: number }> = ({ c, angle, glow }) => {
+  const id = useId().replace(/:/g, "");
+  return (
+    <g transform={`translate(${c.x} ${c.y}) rotate(${angle})`}>
+      <defs>
+        <clipPath id={`bb-${id}`}>
+          <rect x={-13} y={-30} width={26} height={64} rx={6} />
+        </clipPath>
+        <linearGradient id={`bs-${id}`} x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stopColor="#000" stopOpacity={0.45} />
+          <stop offset="0.2" stopColor="#000" stopOpacity={0.05} />
+          <stop offset="0.32" stopColor="#fff" stopOpacity={0.55} />
+          <stop offset="0.42" stopColor="#fff" stopOpacity={0} />
+          <stop offset="0.75" stopColor="#000" stopOpacity={0.08} />
+          <stop offset="1" stopColor="#000" stopOpacity={0.5} />
+        </linearGradient>
+      </defs>
+      {/* ombro e corpo */}
+      <path d="M -13 -26 Q -13 -36 -10 -38 L 10 -38 Q 13 -36 13 -26 Z" fill="#f1efea" />
+      <rect x={-13} y={-30} width={26} height={64} rx={6} fill="#f1efea" />
+      <g clipPath={`url(#bb-${id})`}>
+        <image
+          href={staticFile("Arte.jpg")}
+          x={-ART_W * 0.44}
+          y={-30}
+          width={ART_W}
+          height={64}
+          preserveAspectRatio="none"
+        />
+        <rect x={-13} y={-38} width={26} height={72} fill={`url(#bs-${id})`} />
+      </g>
+      <path d="M -13 -26 Q -13 -36 -10 -38 L 10 -38 Q 13 -36 13 -26 Z" fill={`url(#bs-${id})`} />
+      {/* tampa frisada, disco e bico */}
+      <rect x={-10} y={-46} width={20} height={9} rx={1.5} fill="#151515" />
+      {[-7, -3.5, 0, 3.5, 7].map((x) => (
+        <rect key={x} x={x - 0.6} y={-45} width={1.2} height={7} fill="#2c2c2c" />
+      ))}
+      <rect x={-10.8} y={-49} width={21.6} height={4} rx={1.5} fill="#151515" />
+      <rect x={-4.5} y={-56} width={9} height={8} rx={2} fill="#151515" />
+      {/* alça + mosquetão */}
+      <circle cx={-11} cy={-43} r={3.4} fill="none" stroke="#151515" strokeWidth={2} />
+      <rect
+        x={-17}
+        y={-47}
+        width={6}
+        height={12}
+        rx={3}
+        fill="none"
+        stroke="#c9ced2"
+        strokeWidth={1.6}
+        transform="rotate(-20 -14 -41)"
+      />
+      {glow > 0 && (
+        <rect
+          x={-22}
+          y={-64}
+          width={44}
+          height={106}
+          rx={16}
+          fill="none"
+          stroke="#ffe3a6"
+          strokeWidth={4}
+          opacity={glow}
+        />
+      )}
+    </g>
+  );
+};
 export const Pilgrim: React.FC<{
   pose: PilgrimPose;
   frame: number;
@@ -296,7 +369,16 @@ export const Pilgrim: React.FC<{
     S(56, -27),
     S(10, -25),
   ]);
-  const pack = blob([S(26, -22), S(24, -62), S(38, -80), S(100, -82), S(116, -66), S(120, -36), S(116, -20), S(70, -18)]);
+  const pack = blob([
+    S(26, -22),
+    S(24, -62),
+    S(38, -80),
+    S(100, -82),
+    S(116, -66),
+    S(120, -36),
+    S(116, -20),
+    S(70, -18),
+  ]);
   const roll = blob([S(116, -30), S(117, -84), S(134, -85), S(135, -29)]);
   const head = blob([
     H(4, -22),
@@ -324,81 +406,136 @@ export const Pilgrim: React.FC<{
   const farHand = P.armFar.end;
 
   return (
-    <svg viewBox="-210 -440 420 460" height={height} width={(height * 420) / 460} style={{ overflow: "visible", ...style }}>
-      <defs>
-        <filter id={`rim-${id}`} x="-20%" y="-20%" width="140%" height="140%">
-          <feOffset in="SourceAlpha" dx={-3.5} dy={1} result="off" />
-          <feComposite in="SourceAlpha" in2="off" operator="out" result="edge" />
-          <feFlood floodColor={rimColor} />
-          <feComposite in2="edge" operator="in" result="rim" />
-          <feGaussianBlur in="rim" stdDeviation={0.7} result="rimb" />
-          <feMerge>
-            <feMergeNode in="SourceGraphic" />
-            <feMergeNode in="rimb" />
-          </feMerge>
-        </filter>
-      </defs>
-      <ellipse cx={0} cy={3} rx={90} ry={6} fill="rgba(0,0,0,0.28)" />
-      <g filter={`url(#rim-${id})`}>
-        {/* cajado */}
-        <line x1={P.tip.x} y1={P.tip.y} x2={P.staffTop.x} y2={P.staffTop.y} stroke="#2a1b12" strokeWidth={7} strokeLinecap="round" />
-        {/* lado de trás */}
-        <path d={limb(P.shoulderFar, P.armFar.joint, 13, 10, 2, 1)} fill={back} />
-        <path d={limb(P.armFar.joint, farHand, 10, 8, 2, 1)} fill={back} />
-        <circle cx={farHand.x} cy={farHand.y} r={10} fill={back} />
-        <path d={limb(P.hipFar, P.legFar.joint, 20, 14, 2, 4)} fill={back} />
-        <path d={limb(P.legFar.joint, P.farFoot.ankle, 14, 10, 4, 0)} fill={back} />
-        <Boot f={P.farFoot} ink={back} detail="#2a1f1a" />
+    <>
+      {/* garante que a arte esteja carregada antes do frame */}
+      <Img src={staticFile("Arte.jpg")} style={{ display: "none" }} />
+      <svg
+        viewBox="-210 -440 420 460"
+        height={height}
+        width={(height * 420) / 460}
+        style={{ overflow: "visible", ...style }}
+      >
+        <defs>
+          <filter id={`rim-${id}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feOffset in="SourceAlpha" dx={-3.5} dy={1} result="off" />
+            <feComposite in="SourceAlpha" in2="off" operator="out" result="edge" />
+            <feFlood floodColor={rimColor} />
+            <feComposite in2="edge" operator="in" result="rim" />
+            <feGaussianBlur in="rim" stdDeviation={0.7} result="rimb" />
+            <feMerge>
+              <feMergeNode in="SourceGraphic" />
+              <feMergeNode in="rimb" />
+            </feMerge>
+          </filter>
+        </defs>
+        <ellipse cx={0} cy={3} rx={90} ry={6} fill="rgba(0,0,0,0.28)" />
+        <g filter={`url(#rim-${id})`}>
+          {/* cajado */}
+          <line
+            x1={P.tip.x}
+            y1={P.tip.y}
+            x2={P.staffTop.x}
+            y2={P.staffTop.y}
+            stroke="#2a1b12"
+            strokeWidth={7}
+            strokeLinecap="round"
+          />
+          {/* lado de trás */}
+          <path d={limb(P.shoulderFar, P.armFar.joint, 13, 10, 2, 1)} fill={back} />
+          <path d={limb(P.armFar.joint, farHand, 10, 8, 2, 1)} fill={back} />
+          <circle cx={farHand.x} cy={farHand.y} r={10} fill={back} />
+          <path d={limb(P.hipFar, P.legFar.joint, 20, 14, 2, 4)} fill={back} />
+          <path d={limb(P.legFar.joint, P.farFoot.ankle, 14, 10, 4, 0)} fill={back} />
+          <Boot f={P.farFoot} ink={back} detail="#2a1f1a" />
 
-        {/* mochila */}
-        <path d={roll} fill={ink} />
-        <path d={`M ${S(116, -44).x} ${S(116, -44).y} L ${S(135, -44).x} ${S(135, -44).y} M ${S(116, -70).x} ${S(116, -70).y} L ${S(135, -70).x} ${S(135, -70).y}`} stroke={detail} strokeWidth={3} />
-        <path d={pack} fill={ink} />
-        <path d={`M ${S(92, -24).x} ${S(92, -24).y} Q ${S(96, -52).x} ${S(96, -52).y} ${S(110, -76).x} ${S(110, -76).y}`} stroke={detail} strokeWidth={3} fill="none" />
-        <path d={blob([S(44, -76), S(44, -94), S(80, -95), S(84, -78)])} fill={ink} />
-        <path d={`M ${S(44, -80).x} ${S(44, -80).y} L ${S(84, -80).x} ${S(84, -80).y}`} stroke={detail} strokeWidth={2.5} />
+          {/* mochila */}
+          <path d={roll} fill={ink} />
+          <path
+            d={`M ${S(116, -44).x} ${S(116, -44).y} L ${S(135, -44).x} ${S(135, -44).y} M ${S(116, -70).x} ${S(116, -70).y} L ${S(135, -70).x} ${S(135, -70).y}`}
+            stroke={detail}
+            strokeWidth={3}
+          />
+          <path d={pack} fill={ink} />
+          <path
+            d={`M ${S(92, -24).x} ${S(92, -24).y} Q ${S(96, -52).x} ${S(96, -52).y} ${S(110, -76).x} ${S(110, -76).y}`}
+            stroke={detail}
+            strokeWidth={3}
+            fill="none"
+          />
+          <path d={blob([S(44, -76), S(44, -94), S(80, -95), S(84, -78)])} fill={ink} />
+          <path
+            d={`M ${S(44, -80).x} ${S(44, -80).y} L ${S(84, -80).x} ${S(84, -80).y}`}
+            stroke={detail}
+            strokeWidth={2.5}
+          />
 
-        {/* tronco */}
-        <path d={torso} fill={ink} />
-        <path d={strap} stroke={detail} strokeWidth={7} fill="none" strokeLinecap="round" />
-        <path d={`M ${S(10, -24).x} ${S(10, -24).y} L ${S(12, 27).x} ${S(12, 27).y}`} stroke={detail} strokeWidth={5} />
-        <path d={`M ${S(118, 18).x} ${S(118, 18).y} L ${S(22, 26).x} ${S(22, 26).y}`} stroke={detail} strokeWidth={2} strokeDasharray="2 5" />
-        <path d={scarf} fill={ink} />
+          {/* tronco */}
+          <path d={torso} fill={ink} />
+          <path d={strap} stroke={detail} strokeWidth={7} fill="none" strokeLinecap="round" />
+          <path
+            d={`M ${S(10, -24).x} ${S(10, -24).y} L ${S(12, 27).x} ${S(12, 27).y}`}
+            stroke={detail}
+            strokeWidth={5}
+          />
+          <path
+            d={`M ${S(118, 18).x} ${S(118, 18).y} L ${S(22, 26).x} ${S(22, 26).y}`}
+            stroke={detail}
+            strokeWidth={2}
+            strokeDasharray="2 5"
+          />
+          <path d={scarf} fill={ink} />
 
-        {/* cabeça */}
-        <path d={blob([P.neckBase, add(P.neckBase, v(8, -4)), H(-16, 8), H(-12, -16)])} fill={ink} />
-        <path d={head} fill={ink} />
-        <path d={crown} fill={ink} />
-        <path d={brim} fill={ink} />
-        <path d={`M ${H(17, -24).x} ${H(17, -24).y} L ${H(17, 24).x} ${H(17, 24).y}`} stroke={detail} strokeWidth={4} />
-        <path d={`M ${H(4, -4).x} ${H(4, -4).y} Q ${H(-2, -8).x} ${H(-2, -8).y} ${H(-6, -2).x} ${H(-6, -2).y}`} stroke={detail} strokeWidth={2} fill="none" />
+          {/* cabeça */}
+          <path d={blob([P.neckBase, add(P.neckBase, v(8, -4)), H(-16, 8), H(-12, -16)])} fill={ink} />
+          <path d={head} fill={ink} />
+          <path d={crown} fill={ink} />
+          <path d={brim} fill={ink} />
+          <path
+            d={`M ${H(17, -24).x} ${H(17, -24).y} L ${H(17, 24).x} ${H(17, 24).y}`}
+            stroke={detail}
+            strokeWidth={4}
+          />
+          <path
+            d={`M ${H(4, -4).x} ${H(4, -4).y} Q ${H(-2, -8).x} ${H(-2, -8).y} ${H(-6, -2).x} ${H(-6, -2).y}`}
+            stroke={detail}
+            strokeWidth={2}
+            fill="none"
+          />
 
-        {/* garrafa pendurada no cinto */}
-        {!P.held && (
-          <>
-            <line x1={P.beltAnchor.x} y1={P.beltAnchor.y} x2={P.bottleCenter.x} y2={P.bottleCenter.y - 44} stroke="#b9bec2" strokeWidth={3} />
-            <Bottle c={P.bottleCenter} angle={P.bottleAngle} glow={bottleGlow} />
-          </>
-        )}
+          {/* perna da frente */}
+          <path d={limb(P.hipNear, P.legNear.joint, 21, 15, 2, 5)} fill={ink} />
+          <path d={limb(P.legNear.joint, P.nearFoot.ankle, 15, 10, 5, 0)} fill={ink} />
+          <path
+            d={`M ${P.legNear.joint.x - 10} ${P.legNear.joint.y - 18} q 8 10 22 4`}
+            stroke={detail}
+            strokeWidth={2}
+            fill="none"
+          />
+          <Boot f={P.nearFoot} ink={ink} detail={detail} />
 
-        {/* perna da frente */}
-        <path d={limb(P.hipNear, P.legNear.joint, 21, 15, 2, 5)} fill={ink} />
-        <path d={limb(P.legNear.joint, P.nearFoot.ankle, 15, 10, 5, 0)} fill={ink} />
-        <path
-          d={`M ${P.legNear.joint.x - 10} ${P.legNear.joint.y - 18} q 8 10 22 4`}
-          stroke={detail}
-          strokeWidth={2}
-          fill="none"
-        />
-        <Boot f={P.nearFoot} ink={ink} detail={detail} />
+          {/* garrafa pendurada no cinto */}
+          {!P.held && (
+            <>
+              <line
+                x1={P.beltAnchor.x}
+                y1={P.beltAnchor.y}
+                x2={P.bottleCenter.x}
+                y2={P.bottleCenter.y - 48}
+                stroke="#b9bec2"
+                strokeWidth={3}
+              />
+              <Bottle c={P.bottleCenter} angle={P.bottleAngle} glow={bottleGlow} />
+            </>
+          )}
 
-        {/* braço da frente (+ garrafa na mão) */}
-        <path d={limb(P.shoulder, P.armNear.joint, 14, 11, 2, 2)} fill={ink} />
-        <path d={limb(P.armNear.joint, nearHand, 11, 8, 2, 1)} fill={ink} />
-        {P.held && <Bottle c={P.bottleCenter} angle={P.bottleAngle} glow={bottleGlow} />}
-        <circle cx={nearHand.x} cy={nearHand.y} r={10} fill={ink} />
-        <circle cx={nearHand.x + 6} cy={nearHand.y - 6} r={5} fill={ink} />
-      </g>
-    </svg>
+          {/* braço da frente (+ garrafa na mão) */}
+          <path d={limb(P.shoulder, P.armNear.joint, 14, 11, 2, 2)} fill={ink} />
+          <path d={limb(P.armNear.joint, nearHand, 11, 8, 2, 1)} fill={ink} />
+          {P.held && <Bottle c={P.bottleCenter} angle={P.bottleAngle} glow={bottleGlow} />}
+          <circle cx={nearHand.x} cy={nearHand.y} r={10} fill={ink} />
+          <circle cx={nearHand.x + 6} cy={nearHand.y - 6} r={5} fill={ink} />
+        </g>
+      </svg>
+    </>
   );
 };

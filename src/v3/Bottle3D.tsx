@@ -7,9 +7,9 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 
 // Garrafa 600 ml em 3D. Unidade: raio do corpo = 1.
 // Garrafa de alumínio 600 ml, medida a partir das fotos. Unidade: raio do corpo = 1.
-// Arte: volta inteira na circunferência, 3,35 de altura (a sublimação comprime a arte na horizontal).
-const LABEL_H = 3.35;
-const LABEL_Y = 0.3;
+// Arte: volta inteira e cobre todo o corpo, da base até o ombro (como na sublimação real).
+const LABEL_H = 3.96;
+const LABEL_Y = 0.13;
 const SHOULDER_Y = 4.1;
 const NECK_R = 0.74;
 const useArtTexture = () => {

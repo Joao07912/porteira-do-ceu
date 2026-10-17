@@ -3,42 +3,42 @@
     "id": "hook",
     "text": "Você caminha com fé. Não com sede.",
     "file": "v3/narration/hook.mp3",
-    "durationMs": 3378,
+    "durationMs": 3061,
     "words": [
       {
         "text": "Você",
-        "startMs": 103,
-        "endMs": 462
+        "startMs": 55,
+        "endMs": 467
       },
       {
         "text": "caminha",
-        "startMs": 476,
-        "endMs": 914
+        "startMs": 467,
+        "endMs": 1016
       },
       {
         "text": "com",
-        "startMs": 928,
-        "endMs": 1127
+        "startMs": 1016,
+        "endMs": 1236
       },
       {
         "text": "fé",
-        "startMs": 1140,
-        "endMs": 1460
+        "startMs": 1236,
+        "endMs": 1621
       },
       {
         "text": "Não",
-        "startMs": 2380,
-        "endMs": 2686
+        "startMs": 2003,
+        "endMs": 2278
       },
       {
         "text": "com",
-        "startMs": 2699,
-        "endMs": 2886
+        "startMs": 2278,
+        "endMs": 2470
       },
       {
         "text": "sede",
-        "startMs": 2899,
-        "endMs": 3378
+        "startMs": 2470,
+        "endMs": 3061
       }
     ]
   },
@@ -46,42 +46,42 @@
     "id": "marca",
     "text": "Conheça a garrafa térmica Porteira do Céu.",
     "file": "v3/narration/marca.mp3",
-    "durationMs": 2909,
+    "durationMs": 2871,
     "words": [
       {
         "text": "Conheça",
-        "startMs": 103,
-        "endMs": 635
+        "startMs": 69,
+        "endMs": 549
       },
       {
         "text": "a",
-        "startMs": 648,
-        "endMs": 675
+        "startMs": 549,
+        "endMs": 577
       },
       {
         "text": "garrafa",
-        "startMs": 688,
-        "endMs": 1220
+        "startMs": 577,
+        "endMs": 1071
       },
       {
         "text": "térmica",
-        "startMs": 1234,
-        "endMs": 1792
+        "startMs": 1071,
+        "endMs": 1648
       },
       {
         "text": "Porteira",
-        "startMs": 1805,
-        "endMs": 2351
+        "startMs": 1648,
+        "endMs": 2294
       },
       {
         "text": "do",
-        "startMs": 2364,
-        "endMs": 2470
+        "startMs": 2294,
+        "endMs": 2404
       },
       {
         "text": "Céu",
-        "startMs": 2484,
-        "endMs": 2909
+        "startMs": 2404,
+        "endMs": 2871
       }
     ]
   },
@@ -89,97 +89,97 @@
     "id": "caminho",
     "text": "No Caminho da Fé, cada passo é uma oração. E a água fresquinha vai junto, presa na mochila.",
     "file": "v3/narration/caminho.mp3",
-    "durationMs": 6742,
+    "durationMs": 7197,
     "words": [
       {
         "text": "No",
-        "startMs": 103,
-        "endMs": 289
+        "startMs": 54,
+        "endMs": 205
       },
       {
         "text": "Caminho",
-        "startMs": 303,
-        "endMs": 715
+        "startMs": 205,
+        "endMs": 713
       },
       {
         "text": "da",
-        "startMs": 728,
-        "endMs": 848
+        "startMs": 713,
+        "endMs": 864
       },
       {
         "text": "Fé",
-        "startMs": 861,
-        "endMs": 1180
+        "startMs": 864,
+        "endMs": 1194
       },
       {
         "text": "cada",
-        "startMs": 1420,
-        "endMs": 1712
+        "startMs": 1455,
+        "endMs": 1757
       },
       {
         "text": "passo",
-        "startMs": 1726,
-        "endMs": 2124
+        "startMs": 1757,
+        "endMs": 2375
       },
       {
         "text": "é",
-        "startMs": 2138,
-        "endMs": 2178
+        "startMs": 2375,
+        "endMs": 2499
       },
       {
         "text": "uma",
-        "startMs": 2191,
-        "endMs": 2297
+        "startMs": 2499,
+        "endMs": 2787
       },
       {
         "text": "oração",
-        "startMs": 2311,
-        "endMs": 2856
+        "startMs": 2787,
+        "endMs": 3543
       },
       {
         "text": "E",
-        "startMs": 3777,
-        "endMs": 3896
+        "startMs": 3927,
+        "endMs": 4065
       },
       {
         "text": "a",
-        "startMs": 3910,
-        "endMs": 4003
+        "startMs": 4065,
+        "endMs": 4092
       },
       {
         "text": "água",
-        "startMs": 4016,
-        "endMs": 4348
+        "startMs": 4092,
+        "endMs": 4532
       },
       {
         "text": "fresquinha",
-        "startMs": 4362,
-        "endMs": 4867
+        "startMs": 4532,
+        "endMs": 5177
       },
       {
         "text": "vai",
-        "startMs": 4880,
-        "endMs": 5053
+        "startMs": 5191,
+        "endMs": 5397
       },
       {
         "text": "junto",
-        "startMs": 5066,
-        "endMs": 5479
+        "startMs": 5397,
+        "endMs": 5960
       },
       {
         "text": "presa",
-        "startMs": 5718,
-        "endMs": 6051
+        "startMs": 6139,
+        "endMs": 6496
       },
       {
         "text": "na",
-        "startMs": 6064,
-        "endMs": 6144
+        "startMs": 6496,
+        "endMs": 6592
       },
       {
         "text": "mochila",
-        "startMs": 6157,
-        "endMs": 6742
+        "startMs": 6592,
+        "endMs": 7197
       }
     ]
   },
@@ -187,92 +187,92 @@
     "id": "arte",
     "text": "A arte é exclusiva: a Porteira do Céu e Nossa Senhora Aparecida, em volta da garrafa inteira.",
     "file": "v3/narration/arte.mp3",
-    "durationMs": 6034,
+    "durationMs": 6235,
     "words": [
       {
         "text": "A",
-        "startMs": 103,
-        "endMs": 249
+        "startMs": 54,
+        "endMs": 95
       },
       {
         "text": "arte",
-        "startMs": 263,
-        "endMs": 662
+        "startMs": 95,
+        "endMs": 562
       },
       {
         "text": "é",
-        "startMs": 675,
-        "endMs": 688
+        "startMs": 562,
+        "endMs": 631
       },
       {
         "text": "exclusiva",
-        "startMs": 702,
-        "endMs": 1393
+        "startMs": 631,
+        "endMs": 1427
       },
       {
         "text": "a",
-        "startMs": 1659,
-        "endMs": 1752
+        "startMs": 1730,
+        "endMs": 1812
       },
       {
         "text": "Porteira",
-        "startMs": 1765,
-        "endMs": 2244
+        "startMs": 1812,
+        "endMs": 2348
       },
       {
         "text": "do",
-        "startMs": 2257,
-        "endMs": 2364
+        "startMs": 2348,
+        "endMs": 2444
       },
       {
         "text": "Céu",
-        "startMs": 2377,
-        "endMs": 2683
+        "startMs": 2444,
+        "endMs": 2883
       },
       {
         "text": "e",
-        "startMs": 2696,
-        "endMs": 2723
+        "startMs": 2883,
+        "endMs": 2911
       },
       {
         "text": "Nossa",
-        "startMs": 2736,
-        "endMs": 3015
+        "startMs": 2911,
+        "endMs": 3213
       },
       {
         "text": "Senhora",
-        "startMs": 3029,
-        "endMs": 3428
+        "startMs": 3213,
+        "endMs": 3625
       },
       {
         "text": "Aparecida",
-        "startMs": 3441,
-        "endMs": 4159
+        "startMs": 3625,
+        "endMs": 4381
       },
       {
         "text": "em",
-        "startMs": 4425,
-        "endMs": 4585
+        "startMs": 4545,
+        "endMs": 4724
       },
       {
         "text": "volta",
-        "startMs": 4598,
-        "endMs": 4957
+        "startMs": 4724,
+        "endMs": 5122
       },
       {
         "text": "da",
-        "startMs": 4970,
-        "endMs": 5077
+        "startMs": 5122,
+        "endMs": 5219
       },
       {
         "text": "garrafa",
-        "startMs": 5090,
-        "endMs": 5555
+        "startMs": 5219,
+        "endMs": 5658
       },
       {
         "text": "inteira",
-        "startMs": 5569,
-        "endMs": 6034
+        "startMs": 5658,
+        "endMs": 6235
       }
     ]
   },
@@ -280,72 +280,72 @@
     "id": "recursos",
     "text": "Seiscentos mililitros, térmica, com mosquetão e bico esportivo. Tudo que o Caminho pede.",
     "file": "v3/narration/recursos.mp3",
-    "durationMs": 6715,
+    "durationMs": 6511,
     "words": [
       {
         "text": "Seiscentos",
-        "startMs": 103,
-        "endMs": 888
+        "startMs": 55,
+        "endMs": 783
       },
       {
         "text": "mililitros",
-        "startMs": 901,
-        "endMs": 1526
+        "startMs": 783,
+        "endMs": 1648
       },
       {
         "text": "térmica",
-        "startMs": 1779,
-        "endMs": 2271
+        "startMs": 1827,
+        "endMs": 2418
       },
       {
         "text": "com",
-        "startMs": 2563,
-        "endMs": 2710
+        "startMs": 2582,
+        "endMs": 2720
       },
       {
         "text": "mosquetão",
-        "startMs": 2723,
-        "endMs": 3335
+        "startMs": 2720,
+        "endMs": 3544
       },
       {
         "text": "e",
-        "startMs": 3348,
-        "endMs": 3401
+        "startMs": 3544,
+        "endMs": 3626
       },
       {
         "text": "bico",
-        "startMs": 3414,
-        "endMs": 3667
+        "startMs": 3626,
+        "endMs": 3970
       },
       {
         "text": "esportivo",
-        "startMs": 3680,
-        "endMs": 4412
+        "startMs": 3970,
+        "endMs": 4712
       },
       {
         "text": "Tudo",
-        "startMs": 5332,
-        "endMs": 5652
+        "startMs": 5082,
+        "endMs": 5412
       },
       {
         "text": "que",
-        "startMs": 5665,
-        "endMs": 5771
+        "startMs": 5412,
+        "endMs": 5522
       },
       {
         "text": "o",
-        "startMs": 5785,
-        "endMs": 5824
+        "startMs": 5522,
+        "endMs": 5563
       },
       {
         "text": "Caminho",
-        "startMs": 5838,
-        "endMs": 6263
+        "startMs": 5563,
+        "endMs": 6030
       },
       {
         "text": "pede",
-        "startMs": 6277,
-        "endMs": 6715
+        "startMs": 6030,
+        "endMs": 6511
       }
     ]
   },
@@ -353,87 +353,87 @@
     "id": "atelie",
     "text": "Feita com amor pelo Juntos com Maria Ateliê. Siga no Instagram: arroba juntos com maria ateliê.",
     "file": "v3/narration/atelie.mp3",
-    "durationMs": 6928,
+    "durationMs": 6868,
     "words": [
       {
         "text": "Feita",
-        "startMs": 103,
-        "endMs": 515
+        "startMs": 55,
+        "endMs": 494
       },
       {
         "text": "com",
-        "startMs": 529,
-        "endMs": 688
+        "startMs": 494,
+        "endMs": 673
       },
       {
         "text": "amor",
-        "startMs": 702,
-        "endMs": 1074
+        "startMs": 673,
+        "endMs": 1030
       },
       {
         "text": "pelo",
-        "startMs": 1087,
-        "endMs": 1340
+        "startMs": 1030,
+        "endMs": 1277
       },
       {
         "text": "Juntos",
-        "startMs": 1353,
-        "endMs": 1792
+        "startMs": 1277,
+        "endMs": 1744
       },
       {
         "text": "com",
-        "startMs": 1805,
-        "endMs": 1938
+        "startMs": 1744,
+        "endMs": 1951
       },
       {
         "text": "Maria",
-        "startMs": 1952,
-        "endMs": 2271
+        "startMs": 1951,
+        "endMs": 2390
       },
       {
         "text": "Ateliê",
-        "startMs": 2284,
-        "endMs": 2776
+        "startMs": 2390,
+        "endMs": 2926
       },
       {
         "text": "Siga",
-        "startMs": 3697,
-        "endMs": 4082
+        "startMs": 3297,
+        "endMs": 3805
       },
       {
         "text": "no",
-        "startMs": 4096,
-        "endMs": 4162
+        "startMs": 3805,
+        "endMs": 3887
       },
       {
         "text": "Instagram",
-        "startMs": 4176,
-        "endMs": 4694
+        "startMs": 3887,
+        "endMs": 4464
       },
       {
         "text": "arroba",
-        "startMs": 5066,
-        "endMs": 5505
+        "startMs": 4780,
+        "endMs": 5275
       },
       {
         "text": "juntos",
-        "startMs": 5519,
-        "endMs": 5944
+        "startMs": 5275,
+        "endMs": 5783
       },
       {
         "text": "com",
-        "startMs": 5957,
-        "endMs": 6104
+        "startMs": 5783,
+        "endMs": 5948
       },
       {
         "text": "maria",
-        "startMs": 6117,
-        "endMs": 6423
+        "startMs": 5948,
+        "endMs": 6360
       },
       {
         "text": "ateliê",
-        "startMs": 6436,
-        "endMs": 6928
+        "startMs": 6360,
+        "endMs": 6868
       }
     ]
   },
@@ -441,47 +441,47 @@
     "id": "cta",
     "text": "Agora na Porteira do Céu. Garanta a sua.",
     "file": "v3/narration/cta.mp3",
-    "durationMs": 3910,
+    "durationMs": 3570,
     "words": [
       {
         "text": "Agora",
-        "startMs": 103,
-        "endMs": 622
+        "startMs": 54,
+        "endMs": 741
       },
       {
         "text": "na",
-        "startMs": 635,
-        "endMs": 768
+        "startMs": 741,
+        "endMs": 892
       },
       {
         "text": "Porteira",
-        "startMs": 781,
-        "endMs": 1313
+        "startMs": 892,
+        "endMs": 1524
       },
       {
         "text": "do",
-        "startMs": 1327,
-        "endMs": 1433
+        "startMs": 1524,
+        "endMs": 1633
       },
       {
         "text": "Céu",
-        "startMs": 1446,
-        "endMs": 1872
+        "startMs": 1633,
+        "endMs": 2087
       },
       {
         "text": "Garanta",
-        "startMs": 2793,
-        "endMs": 3378
+        "startMs": 2458,
+        "endMs": 3048
       },
       {
         "text": "a",
-        "startMs": 3391,
-        "endMs": 3418
+        "startMs": 3048,
+        "endMs": 3089
       },
       {
         "text": "sua",
-        "startMs": 3431,
-        "endMs": 3910
+        "startMs": 3089,
+        "endMs": 3570
       }
     ]
   }

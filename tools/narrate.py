@@ -10,8 +10,11 @@ from pathlib import Path
 
 import edge_tts
 
-VOICE = "pt-BR-AntonioNeural"
-RATE = "-6%"
+# vídeo "narrado" (antigo): voz masculina; v3: voz feminina mais suave e natural
+VOICES = {
+    "narrado": ("pt-BR-AntonioNeural", "-6%", "+0Hz"),
+    "v3": ("pt-BR-ThalitaMultilingualNeural", "-9%", "-3Hz"),
+}
 
 # Um trecho por cena. Edite o texto aqui e rode o script de novo.
 NARRADO = [
@@ -34,6 +37,7 @@ V3 = [
 ]
 
 VARIANT = sys.argv[1] if len(sys.argv) > 1 else "narrado"
+VOICE, RATE, PITCH = VOICES[VARIANT]
 SEGMENTS, AUDIO_DIR, JSON_NAME = {
     "narrado": (NARRADO, "narration", "narration.json"),
     "v3": (V3, "v3/narration", "v3/narration.json"),
@@ -45,7 +49,7 @@ OUT_JSON = ROOT / "src" / JSON_NAME
 
 
 async def synth(seg_id: str, text: str) -> dict:
-    communicate = edge_tts.Communicate(text, VOICE, rate=RATE, boundary="WordBoundary")
+    communicate = edge_tts.Communicate(text, VOICE, rate=RATE, pitch=PITCH, boundary="WordBoundary")
     words = []
     path = OUT_AUDIO / f"{seg_id}.mp3"
     with open(path, "wb") as f:

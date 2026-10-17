@@ -18,7 +18,7 @@ import { Bottle3D } from "./Bottle3D";
 import { Body, GateMark, Kicker, Line, display, mono, palette, progress } from "./kinetic";
 import { LEAD_FRAMES, T, sceneFrames, sceneLength, sceneStarts, segments, speechRanges, wordFrame } from "./timeline";
 import { circle } from "./transitions";
-import { Pilgrim, posePilgrim } from "./Pilgrim";
+import { PX_PER_M, Pilgrim3D, WALK_CYCLE_S, WALK_SPEED } from "./Pilgrim3D";
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const PAD = 90;
@@ -146,26 +146,19 @@ const Caminho: React.FC = () => {
   const drinkFrom = stopAt + 16;
   const drinkLen = 92;
   const walkW = (f: number) => interpolate(f, [stopAt, stopAt + 24], [1, 0], { ...clamp, easing: Easing.inOut(Easing.sin) });
-  const CYCLE = 38; // frames por ciclo (2 passos)
-  let phase = 0.15;
-  let travel = 0;
+  let phase = 0.1;
+  let travel = 0; // px que o chão andou
   for (let f = 0; f < frame; f++) {
     const w = walkW(f);
-    phase += w / CYCLE;
-    travel += (200 * w * w) / CYCLE; // corpo avança 2a/STANCE por ciclo
+    phase += w / (WALK_CYCLE_S * 30);
+    travel += (WALK_SPEED * PX_PER_M * w) / 30; // chão anda na velocidade do pé de apoio do mocap
   }
   const drinkAt = (f: number) => interpolate(f, [drinkFrom, drinkFrom + drinkLen], [0, 1], clamp);
   const groundY = 1660;
-  const H = 1000;
-  const s = H / 460;
-  const left = 330 - 210 * s;
-  const top = groundY - 440 * s;
-  const pose = posePilgrim({ t: phase, w: walkW(frame), drink: drinkAt(frame), frame });
-  const endPose = posePilgrim({ t: phase, w: 0, drink: 1, frame: len });
-  const bottle = { x: left + (endPose.bottleCenter.x + 210) * s, y: top + (endPose.bottleCenter.y + 440) * s };
+  const cameraY = (groundY - 960) / PX_PER_M;
+  const bottle = { x: 540 + (-0.32) * PX_PER_M, y: 960 - (0.89 - cameraY) * PX_PER_M };
   const zoom = interpolate(frame, [mochila - 4, len], [1, 2.1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
-  const glow = progress(frame, mochila - 4, 14);
-  const gx = travel * s; // chão anda exatamente com o pé de apoio
+  const glow = progress(frame, mochila - 4, 14);  const gx = travel;
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       <AbsoluteFill style={{ transform: `scale(${zoom})`, transformOrigin: `${bottle.x}px ${bottle.y}px` }}>
@@ -222,7 +215,19 @@ const Caminho: React.FC = () => {
             return <ellipse key={i} cx={x} cy={groundY + 60 + (i % 4) * 50} rx={40 + (i % 3) * 20} ry={6} fill="#3A2232" />;
           })}
         </svg>
-        <Pilgrim pose={pose} frame={frame} height={H} bottleGlow={glow} style={{ position: "absolute", left, top }} />
+        <AbsoluteFill>
+          <Pilgrim3D
+            width={1080}
+            height={1920}
+            cameraY={cameraY}
+            phase={phase}
+            walk={walkW(frame)}
+            drink={drinkAt(frame)}
+            time={frame / 30}
+            x={-0.44}
+            glow={glow}
+          />
+        </AbsoluteFill>
       </AbsoluteFill>
       <AbsoluteFill style={{ padding: `200px ${PAD}px`, gap: 10, opacity: interpolate(frame, [len - 30, len - 10], [1, 0], clamp) }}>
         <Kicker text="No Caminho da Fé" at={wordFrame("caminho", "No") - 6} color={palette.gold} />

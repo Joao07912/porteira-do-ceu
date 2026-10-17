@@ -140,7 +140,11 @@ const carabinerCurve = () =>
 const plastic = { color: "#121212", roughness: 0.32, clearcoat: 0.35, clearcoatRoughness: 0.3 } as const;
 const steel = { color: "#e2e6e9", metalness: 1, roughness: 0.16 } as const;
 
-const BottleMesh: React.FC<{ rotation: number; tilt: number }> = ({ rotation, tilt }) => {
+export const BottleMesh: React.FC<{ rotation: number; tilt: number; centered?: boolean }> = ({
+  rotation,
+  tilt,
+  centered = true,
+}) => {
   const art = useArtTexture();
   const body = useMemo(() => lathe(bodyProfile()), []);
   const collar = useMemo(capCollar, []);
@@ -155,7 +159,7 @@ const BottleMesh: React.FC<{ rotation: number; tilt: number }> = ({ rotation, ti
   const label = useMemo(labelGeometry, []);
   const carabiner = useMemo(() => new THREE.TubeGeometry(carabinerCurve(), 160, 0.045, 14, true), []);
   return (
-    <group rotation={[tilt, 0, 0]} position={[0, -3.0, 0]}>
+    <group rotation={[tilt, 0, 0]} position={[0, centered ? -3.0 : 0, 0]}>
       <group rotation={[0, rotation, 0]}>
         <mesh geometry={body}>
           <meshPhysicalMaterial color="#f4f3ef" metalness={0.35} roughness={0.12} clearcoat={1} clearcoatRoughness={0.04} />

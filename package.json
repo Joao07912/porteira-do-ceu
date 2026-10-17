@@ -11,7 +11,7 @@
     "voz": ".venv\\\\Scripts\\\\python tools\\\\narrate.py",
     "render:3d": "remotion render src/index.ts Garrafa3D out/porteira-do-ceu-3d.mp4 --gl=angle",
     "render:3d-musica": "remotion render src/index.ts Garrafa3DMusica out/porteira-do-ceu-3d-so-musica.mp4 --gl=angle",
-    "musica": "python tools/music.py 38.2"
+    "musica": "python tools/music.py 46.3"
   },
   "keywords": [],
   "author": "",

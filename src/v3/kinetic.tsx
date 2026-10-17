@@ -5,15 +5,20 @@ import { Easing, interpolate, useCurrentFrame } from "remotion";
 export const display = loadDisplay("normal", { weights: ["500", "600", "800"], subsets: ["latin"] }).fontFamily;
 export const mono = loadMono("normal", { weights: ["500"], subsets: ["latin"] }).fontFamily;
 
+// paleta: azuis e sálvia do logo do ateliê + azul da porteira e dourado do sino da garrafa
 export const palette = {
-  cream: "#F6EEE2",
-  sand: "#EADCC6",
-  ink: "#1B2233",
-  navy: "#1E3A6E",
-  deep: "#13264A",
-  orange: "#E2763A",
-  gold: "#F3BC69",
-  muted: "#8B8577",
+  cream: "#F4F8FC",
+  mist: "#EAF2F9",
+  sand: "#E3EDF6",
+  ink: "#1E2E4B",
+  navy: "#243C6C",
+  deep: "#172846",
+  accent: "#3F72AF",
+  sky: "#9CCCE4",
+  sage: "#8FC1B8",
+  gold: "#E8B65A",
+  sunset: "#E2763A",
+  muted: "#7B8BA3",
 };
 
 export const easeOut = Easing.bezier(0.16, 1, 0.3, 1);
@@ -64,7 +69,7 @@ export const Line: React.FC<{
 export const Kicker: React.FC<{ text: string; at: number; color?: string; size?: number; align?: "left" | "center" }> = ({
   text,
   at,
-  color = palette.orange,
+  color = palette.accent,
   size = 30,
   align = "left",
 }) => {
@@ -126,7 +131,7 @@ export const Body: React.FC<{
 export const GateMark: React.FC<{ size: number; color?: string; accent?: string }> = ({
   size,
   color = palette.navy,
-  accent = palette.orange,
+  accent = palette.gold,
 }) => {
   const wood = "#7a4a2a";
   const woodDark = "#55321b";

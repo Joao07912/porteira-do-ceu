@@ -4,9 +4,9 @@ export const FPS = 30;
 export const T = 18; // transição entre cenas (frames)
 const LEAD = 0.45; // respiro antes da fala (s)
 const TAIL = 0.6; // respiro depois da fala (s)
-const EXTRA: Record<string, number> = { hook: 0.6, arte: 0.8, cta: 2.8 };
+const EXTRA: Record<string, number> = { hook: 0.6, arte: 0.8, atelie: 0.7, cta: 2.8 };
 
-export type SceneId = "hook" | "marca" | "caminho" | "arte" | "recursos" | "cta";
+export type SceneId = "hook" | "marca" | "caminho" | "arte" | "recursos" | "atelie" | "cta";
 type Word = { text: string; startMs: number; endMs: number };
 type Segment = { id: SceneId; text: string; file: string; durationMs: number; words: Word[] };
 

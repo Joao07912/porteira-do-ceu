@@ -350,6 +350,94 @@
     ]
   },
   {
+    "id": "atelie",
+    "text": "Feita com amor pelo Juntos com Maria Ateliê. Siga no Instagram: arroba juntos com maria ateliê.",
+    "file": "v3/narration/atelie.mp3",
+    "durationMs": 6928,
+    "words": [
+      {
+        "text": "Feita",
+        "startMs": 103,
+        "endMs": 515
+      },
+      {
+        "text": "com",
+        "startMs": 529,
+        "endMs": 688
+      },
+      {
+        "text": "amor",
+        "startMs": 702,
+        "endMs": 1074
+      },
+      {
+        "text": "pelo",
+        "startMs": 1087,
+        "endMs": 1340
+      },
+      {
+        "text": "Juntos",
+        "startMs": 1353,
+        "endMs": 1792
+      },
+      {
+        "text": "com",
+        "startMs": 1805,
+        "endMs": 1938
+      },
+      {
+        "text": "Maria",
+        "startMs": 1952,
+        "endMs": 2271
+      },
+      {
+        "text": "Ateliê",
+        "startMs": 2284,
+        "endMs": 2776
+      },
+      {
+        "text": "Siga",
+        "startMs": 3697,
+        "endMs": 4082
+      },
+      {
+        "text": "no",
+        "startMs": 4096,
+        "endMs": 4162
+      },
+      {
+        "text": "Instagram",
+        "startMs": 4176,
+        "endMs": 4694
+      },
+      {
+        "text": "arroba",
+        "startMs": 5066,
+        "endMs": 5505
+      },
+      {
+        "text": "juntos",
+        "startMs": 5519,
+        "endMs": 5944
+      },
+      {
+        "text": "com",
+        "startMs": 5957,
+        "endMs": 6104
+      },
+      {
+        "text": "maria",
+        "startMs": 6117,
+        "endMs": 6423
+      },
+      {
+        "text": "ateliê",
+        "startMs": 6436,
+        "endMs": 6928
+      }
+    ]
+  },
+  {
     "id": "cta",
     "text": "Agora na Porteira do Céu. Garanta a sua.",
     "file": "v3/narration/cta.mp3",

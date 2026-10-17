@@ -29,6 +29,7 @@ V3 = [
     ("caminho", "No Caminho da Fé, cada passo é uma oração. E a água fresquinha vai junto, presa na mochila."),
     ("arte", "A arte é exclusiva: a Porteira do Céu e Nossa Senhora Aparecida, em volta da garrafa inteira."),
     ("recursos", "Seiscentos mililitros, térmica, com mosquetão e bico esportivo. Tudo que o Caminho pede."),
+    ("atelie", "Feita com amor pelo Juntos com Maria Ateliê. Siga no Instagram: arroba juntos com maria ateliê."),
     ("cta", "Agora na Porteira do Céu. Garanta a sua."),
 ]
 

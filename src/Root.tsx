@@ -27,6 +27,24 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
       />
       <Composition
+        id="Garrafa2D"
+        component={V3}
+        defaultProps={{ narration: true, pilgrim: "2d" as const }}
+        durationInFrames={V3_FRAMES}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="Garrafa2DMusica"
+        component={V3}
+        defaultProps={{ narration: false, pilgrim: "2d" as const }}
+        durationInFrames={V3_FRAMES}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
         id="Narrado"
         component={Narrado}
         durationInFrames={TOTAL_FRAMES}

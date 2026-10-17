@@ -20,6 +20,11 @@ import { LEAD_FRAMES, T, sceneFrames, sceneLength, sceneStarts, segments, speech
 import { circle } from "./transitions";
 import { AtelieLogo, CreditRow, Florals, Grain, HandlePill } from "./decor";
 import { PX_PER_M, Pilgrim3D, WALK_CYCLE_S, WALK_SPEED } from "./Pilgrim3D";
+import { Pilgrim as Pilgrim2D, posePilgrim } from "./Pilgrim2D";
+import { createContext, useContext } from "react";
+
+// qual peregrino usar na cena do caminho: 3D (mocap) ou 2D (silhueta desenhada)
+const PilgrimMode = createContext<"3d" | "2d">("3d");
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const PAD = 90;
@@ -154,6 +159,7 @@ const hill = (base: number, w: Wave[], off: number) => {
 };
 
 const Caminho: React.FC = () => {
+  const mode = useContext(PilgrimMode);
   const frame = useCurrentFrame();
   const len = sceneLength("caminho");
   const mochila = wordFrame("caminho", "mochila");
@@ -163,17 +169,32 @@ const Caminho: React.FC = () => {
   const drinkLen = 100;
   const walkW = (f: number) =>
     interpolate(f, [stopAt, stopAt + 24], [1, 0], { ...clamp, easing: Easing.inOut(Easing.sin) });
+  // 2D: o corpo avança 200 unidades por ciclo de 38 frames (escala H/460 px por unidade)
+  const H2 = 1000;
+  const s2 = H2 / 460;
   let phase = 0.1;
   let travel = 0; // px que o chão andou
   for (let f = 0; f < frame; f++) {
     const w = walkW(f);
-    phase += w / (WALK_CYCLE_S * 30);
-    travel += (WALK_SPEED * PX_PER_M * w) / 30; // chão anda na velocidade do pé de apoio do mocap
+    if (mode === "3d") {
+      phase += w / (WALK_CYCLE_S * 30);
+      travel += (WALK_SPEED * PX_PER_M * w) / 30; // chão anda na velocidade do pé de apoio do mocap
+    } else {
+      phase += w / 38;
+      travel += ((200 * w * w) / 38) * s2;
+    }
   }
   const drinkAt = (f: number) => interpolate(f, [drinkFrom, drinkFrom + drinkLen], [0, 1], clamp);
   const groundY = 1660;
   const cameraY = (groundY - 960) / PX_PER_M;
-  const bottle = { x: 540 + -0.32 * PX_PER_M, y: 960 - (0.89 - cameraY) * PX_PER_M };
+  const left2 = 330 - 210 * s2;
+  const top2 = groundY - 440 * s2;
+  const pose2 = mode === "2d" ? posePilgrim({ t: phase, w: walkW(frame), drink: drinkAt(frame), frame }) : null;
+  const end2 = posePilgrim({ t: phase, w: 0, drink: 1, frame: len });
+  const bottle =
+    mode === "3d"
+      ? { x: 540 + -0.32 * PX_PER_M, y: 960 - (0.89 - cameraY) * PX_PER_M }
+      : { x: left2 + (end2.bottleCenter.x + 210) * s2, y: top2 + (end2.bottleCenter.y + 440) * s2 };
   const zoom = interpolate(frame, [mochila - 4, len], [1, 2.1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   const glow = progress(frame, mochila - 4, 14);
   const gx = travel;
@@ -265,19 +286,30 @@ const Caminho: React.FC = () => {
             );
           })}
         </svg>
-        <AbsoluteFill>
-          <Pilgrim3D
-            width={1080}
-            height={1920}
-            cameraY={cameraY}
-            phase={phase}
-            walk={walkW(frame)}
-            drink={drinkAt(frame)}
-            time={frame / 30}
-            x={-0.44}
-            glow={glow}
+        {pose2 && (
+          <Pilgrim2D
+            pose={pose2}
+            frame={frame}
+            height={H2}
+            bottleGlow={glow}
+            style={{ position: "absolute", left: left2, top: top2 }}
           />
-        </AbsoluteFill>
+        )}
+        {mode === "3d" && (
+          <AbsoluteFill>
+            <Pilgrim3D
+              width={1080}
+              height={1920}
+              cameraY={cameraY}
+              phase={phase}
+              walk={walkW(frame)}
+              drink={drinkAt(frame)}
+              time={frame / 30}
+              x={-0.44}
+              glow={glow}
+            />
+          </AbsoluteFill>
+        )}
       </AbsoluteFill>
       <AbsoluteFill
         style={{ padding: `200px ${PAD}px`, gap: 10, opacity: interpolate(frame, [len - 30, len - 10], [1, 0], clamp) }}
@@ -574,9 +606,9 @@ const PRESENTATIONS: TransitionPresentation<any>[] = [
   fade(),
 ];
 
-export type V3Props = { narration: boolean };
+export type V3Props = { narration: boolean; pilgrim?: "3d" | "2d" };
 
-export const V3: React.FC<V3Props> = ({ narration }) => {
+export const V3: React.FC<V3Props> = ({ narration, pilgrim = "3d" }) => {
   const { durationInFrames } = useVideoConfig();
   const music = (f: number) => {
     const talking = narration && speechRanges.some((r) => f >= r.from - 6 && f <= r.to + 6);
@@ -585,35 +617,37 @@ export const V3: React.FC<V3Props> = ({ narration }) => {
     return (talking ? base * 0.42 : base) * out;
   };
   return (
-    <AbsoluteFill style={{ background: palette.cream }}>
-      <TransitionSeries>
-        {segments.flatMap((s, i) => {
-          const Scene = SCENES[s.id];
-          const seq = (
-            <TransitionSeries.Sequence key={s.id} durationInFrames={sceneFrames[i]}>
-              <Scene />
-            </TransitionSeries.Sequence>
-          );
-          if (i === 0) return [seq];
-          const timing =
-            i === 3 || i === 1
-              ? springTiming({ config: { damping: 200 }, durationInFrames: T })
-              : linearTiming({ durationInFrames: T });
-          return [
-            <TransitionSeries.Transition key={`t${i}`} presentation={PRESENTATIONS[i - 1]} timing={timing} />,
-            seq,
-          ];
-        })}
-      </TransitionSeries>
-      <Grain />
+    <PilgrimMode.Provider value={pilgrim}>
+      <AbsoluteFill style={{ background: palette.cream }}>
+        <TransitionSeries>
+          {segments.flatMap((s, i) => {
+            const Scene = SCENES[s.id];
+            const seq = (
+              <TransitionSeries.Sequence key={s.id} durationInFrames={sceneFrames[i]}>
+                <Scene />
+              </TransitionSeries.Sequence>
+            );
+            if (i === 0) return [seq];
+            const timing =
+              i === 3 || i === 1
+                ? springTiming({ config: { damping: 200 }, durationInFrames: T })
+                : linearTiming({ durationInFrames: T });
+            return [
+              <TransitionSeries.Transition key={`t${i}`} presentation={PRESENTATIONS[i - 1]} timing={timing} />,
+              seq,
+            ];
+          })}
+        </TransitionSeries>
+        <Grain />
 
-      <Audio src={staticFile("v3/music.wav")} volume={music} />
-      {narration &&
-        segments.map((s, i) => (
-          <Sequence key={s.id} from={sceneStarts[i] + LEAD_FRAMES} layout="none">
-            <Audio src={staticFile(s.file)} />
-          </Sequence>
-        ))}
-    </AbsoluteFill>
+        <Audio src={staticFile("v3/music.wav")} volume={music} />
+        {narration &&
+          segments.map((s, i) => (
+            <Sequence key={s.id} from={sceneStarts[i] + LEAD_FRAMES} layout="none">
+              <Audio src={staticFile(s.file)} />
+            </Sequence>
+          ))}
+      </AbsoluteFill>
+    </PilgrimMode.Provider>
   );
 };

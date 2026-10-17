@@ -51,7 +51,6 @@ const Studio: React.FC = () => {
   return null;
 };
 
-
 // superfície da estampa: segue o perfil do corpo (reto + ombro), reamostrada por comprimento de arco
 // pra arte não esticar no ombro
 const labelGeometry = () => {
@@ -79,7 +78,11 @@ const labelGeometry = () => {
   }
   return new THREE.LatheGeometry(pts, 256, Math.PI / 2, Math.PI * 2);
 };
-const lathe = (pts: [number, number][], seg = 160) => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), seg);
+const lathe = (pts: [number, number][], seg = 160) =>
+  new THREE.LatheGeometry(
+    pts.map(([x, y]) => new THREE.Vector2(x, y)),
+    seg,
+  );
 
 const bodyProfile = (): [number, number][] => {
   const pts: [number, number][] = [
@@ -140,20 +143,40 @@ const carabinerCurve = () =>
 const plastic = { color: "#121212", roughness: 0.32, clearcoat: 0.35, clearcoatRoughness: 0.3 } as const;
 const steel = { color: "#e2e6e9", metalness: 1, roughness: 0.16 } as const;
 
-export const BottleMesh: React.FC<{ rotation: number; tilt: number; centered?: boolean }> = ({
+export const BottleMesh: React.FC<{ rotation: number; tilt: number; centered?: boolean; accessories?: boolean }> = ({
   rotation,
   tilt,
   centered = true,
+  accessories = true,
 }) => {
   const art = useArtTexture();
   const body = useMemo(() => lathe(bodyProfile()), []);
   const collar = useMemo(capCollar, []);
   const capTop = useMemo(
-    () => lathe([[0, 5.3], [0.76, 5.3], [0.8, 5.31], [0.81, 5.46], [0.78, 5.55], [0.56, 5.58], [0, 5.58]]),
+    () =>
+      lathe([
+        [0, 5.3],
+        [0.76, 5.3],
+        [0.8, 5.31],
+        [0.81, 5.46],
+        [0.78, 5.55],
+        [0.56, 5.58],
+        [0, 5.58],
+      ]),
     [],
   );
   const nozzle = useMemo(
-    () => lathe([[0, 5.57], [0.4, 5.57], [0.4, 5.62], [0.33, 5.63], [0.33, 6.06], [0.31, 6.11], [0.27, 6.13], [0, 6.13]]),
+    () =>
+      lathe([
+        [0, 5.57],
+        [0.4, 5.57],
+        [0.4, 5.62],
+        [0.33, 5.63],
+        [0.33, 6.06],
+        [0.31, 6.11],
+        [0.27, 6.13],
+        [0, 6.13],
+      ]),
     [],
   );
   const label = useMemo(labelGeometry, []);
@@ -162,7 +185,13 @@ export const BottleMesh: React.FC<{ rotation: number; tilt: number; centered?: b
     <group rotation={[tilt, 0, 0]} position={[0, centered ? -3.0 : 0, 0]}>
       <group rotation={[0, rotation, 0]}>
         <mesh geometry={body}>
-          <meshPhysicalMaterial color="#f4f3ef" metalness={0.35} roughness={0.12} clearcoat={1} clearcoatRoughness={0.04} />
+          <meshPhysicalMaterial
+            color="#f4f3ef"
+            metalness={0.35}
+            roughness={0.12}
+            clearcoat={1}
+            clearcoatRoughness={0.04}
+          />
         </mesh>
         {art && (
           <mesh geometry={label}>
@@ -181,42 +210,46 @@ export const BottleMesh: React.FC<{ rotation: number; tilt: number; centered?: b
           <meshPhysicalMaterial {...plastic} roughness={0.28} />
         </mesh>
 
-        {/* alça preta na lateral da tampa */}
-        <mesh position={[-0.88, 5.2, 0]} rotation={[0, 0, 0.15]} scale={[1, 1, 0.45]}>
-          <torusGeometry args={[0.2, 0.065, 16, 48]} />
-          <meshPhysicalMaterial {...plastic} />
-        </mesh>
-
-        {/* mosquetão, argola e tampa reserva pendurados */}
-        <group position={[-0.96, 5.12, 0.05]} rotation={[0.25, 0.35, -0.42]} scale={1.15}>
-          <mesh geometry={carabiner}>
-            <meshStandardMaterial {...steel} />
-          </mesh>
-          <mesh position={[0.22, -0.55, 0]} rotation={[0, 0, 0.12]}>
-            <cylinderGeometry args={[0.035, 0.035, 0.75, 12]} />
-            <meshStandardMaterial {...steel} roughness={0.25} />
-          </mesh>
-          <group position={[0.02, -1.42, 0.02]} rotation={[0.6, 0.2, 0]}>
-            <mesh>
-              <torusGeometry args={[0.26, 0.022, 10, 64]} />
-              <meshStandardMaterial {...steel} />
+        {accessories && (
+          <>
+            {/* alça preta na lateral da tampa */}
+            <mesh position={[-0.88, 5.2, 0]} rotation={[0, 0, 0.15]} scale={[1, 1, 0.45]}>
+              <torusGeometry args={[0.2, 0.065, 16, 48]} />
+              <meshPhysicalMaterial {...plastic} />
             </mesh>
-            <group position={[0, -0.56, 0.05]} rotation={[1.25, 0.3, 0.2]}>
-              <mesh>
-                <cylinderGeometry args={[0.5, 0.5, 0.3, 64]} />
-                <meshPhysicalMaterial {...plastic} />
+
+            {/* mosquetão, argola e tampa reserva pendurados */}
+            <group position={[-0.96, 5.12, 0.05]} rotation={[0.25, 0.35, -0.42]} scale={1.15}>
+              <mesh geometry={carabiner}>
+                <meshStandardMaterial {...steel} />
               </mesh>
-              <mesh position={[0, 0.16, 0]} rotation={[Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[0.4, 0.06, 12, 64]} />
-                <meshStandardMaterial color="#efefec" roughness={0.45} />
+              <mesh position={[0.22, -0.55, 0]} rotation={[0, 0, 0.12]}>
+                <cylinderGeometry args={[0.035, 0.035, 0.75, 12]} />
+                <meshStandardMaterial {...steel} roughness={0.25} />
               </mesh>
-              <mesh position={[0, 0.17, 0]}>
-                <cylinderGeometry args={[0.36, 0.36, 0.02, 48]} />
-                <meshPhysicalMaterial {...plastic} />
-              </mesh>
+              <group position={[0.02, -1.42, 0.02]} rotation={[0.6, 0.2, 0]}>
+                <mesh>
+                  <torusGeometry args={[0.26, 0.022, 10, 64]} />
+                  <meshStandardMaterial {...steel} />
+                </mesh>
+                <group position={[0, -0.56, 0.05]} rotation={[1.25, 0.3, 0.2]}>
+                  <mesh>
+                    <cylinderGeometry args={[0.5, 0.5, 0.3, 64]} />
+                    <meshPhysicalMaterial {...plastic} />
+                  </mesh>
+                  <mesh position={[0, 0.16, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                    <torusGeometry args={[0.4, 0.06, 12, 64]} />
+                    <meshStandardMaterial color="#efefec" roughness={0.45} />
+                  </mesh>
+                  <mesh position={[0, 0.17, 0]}>
+                    <cylinderGeometry args={[0.36, 0.36, 0.02, 48]} />
+                    <meshPhysicalMaterial {...plastic} />
+                  </mesh>
+                </group>
+              </group>
             </group>
-          </group>
-        </group>
+          </>
+        )}
       </group>
     </group>
   );
@@ -228,7 +261,12 @@ export const Bottle3D: React.FC<{
   tilt?: number;
   zoom?: number;
 }> = ({ width, height, rotation, tilt = 0.08, zoom = 1 }) => (
-  <ThreeCanvas width={width} height={height} camera={{ fov: 28, position: [0, 0.4, 17 / zoom] }} gl={{ antialias: true }}>
+  <ThreeCanvas
+    width={width}
+    height={height}
+    camera={{ fov: 28, position: [0, 0.4, 17 / zoom] }}
+    gl={{ antialias: true }}
+  >
     <Studio />
     <ambientLight intensity={0.25} />
     <directionalLight position={[5, 6, 6]} intensity={1.6} color="#fff1dc" />

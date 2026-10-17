@@ -1,10 +1,11 @@
-"""Gera a narração (edge-tts) e os tempos de cada palavra para o Remotion.
+﻿"""Gera a narração (edge-tts) e os tempos de cada palavra para o Remotion.
 
-Uso: .venv\\Scripts\\python tools\\narrate.py
-Saída: public/narration/<id>.mp3 e src/narration.json
+Uso: .venv\\Scripts\\python tools\\narrate.py [narrado|v3]
+Saída: public/<pasta>/<id>.mp3 e src/<json>
 """
 import asyncio
 import json
+import sys
 from pathlib import Path
 
 import edge_tts
@@ -13,7 +14,7 @@ VOICE = "pt-BR-AntonioNeural"
 RATE = "-6%"
 
 # Um trecho por cena. Edite o texto aqui e rode o script de novo.
-SEGMENTS = [
+NARRADO = [
     ("caminho", "No Caminho da Fé, cada passo é uma oração."),
     ("estrada", "São quilômetros de estrada, sol e poeira. E quem caminha sabe: água fresca faz toda a diferença."),
     ("garrafa", "Conheça a garrafa térmica Porteira do Céu."),
@@ -22,9 +23,24 @@ SEGMENTS = [
     ("cta", "Agora você encontra na Porteira do Céu. A sua companheira no Caminho da Fé."),
 ]
 
+V3 = [
+    ("hook", "Você caminha com fé. Não com sede."),
+    ("marca", "Conheça a garrafa térmica Porteira do Céu."),
+    ("caminho", "No Caminho da Fé, cada passo é uma oração. E a água fresquinha vai junto, presa na mochila."),
+    ("arte", "A arte é exclusiva: a Porteira do Céu e Nossa Senhora Aparecida, em volta da garrafa inteira."),
+    ("recursos", "Seiscentos mililitros, térmica, com mosquetão e bico esportivo. Tudo que o Caminho pede."),
+    ("cta", "Agora na Porteira do Céu. Garanta a sua."),
+]
+
+VARIANT = sys.argv[1] if len(sys.argv) > 1 else "narrado"
+SEGMENTS, AUDIO_DIR, JSON_NAME = {
+    "narrado": (NARRADO, "narration", "narration.json"),
+    "v3": (V3, "v3/narration", "v3/narration.json"),
+}[VARIANT]
+
 ROOT = Path(__file__).resolve().parent.parent
-OUT_AUDIO = ROOT / "public" / "narration"
-OUT_JSON = ROOT / "src" / "narration.json"
+OUT_AUDIO = ROOT / "public" / AUDIO_DIR
+OUT_JSON = ROOT / "src" / JSON_NAME
 
 
 async def synth(seg_id: str, text: str) -> dict:
@@ -38,7 +54,7 @@ async def synth(seg_id: str, text: str) -> dict:
             elif chunk["type"] == "WordBoundary":
                 start = chunk["offset"] / 10_000  # 100ns -> ms
                 words.append({"text": chunk["text"], "startMs": round(start), "endMs": round(start + chunk["duration"] / 10_000)})
-    return {"id": seg_id, "text": text, "file": f"narration/{seg_id}.mp3", "durationMs": words[-1]["endMs"], "words": words}
+    return {"id": seg_id, "text": text, "file": f"{AUDIO_DIR}/{seg_id}.mp3", "durationMs": words[-1]["endMs"], "words": words}
 
 
 async def main() -> None:

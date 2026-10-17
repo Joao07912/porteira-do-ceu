@@ -8,22 +8,29 @@
     "dev": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Promo out/porteira-do-ceu.mp4",
     "render:narrado": "remotion render src/index.ts Narrado out/porteira-do-ceu-narrado.mp4",
-    "voz": ".venv\\\\Scripts\\\\python tools\\\\narrate.py"
+    "voz": ".venv\\\\Scripts\\\\python tools\\\\narrate.py",
+    "render:3d": "remotion render src/index.ts Garrafa3D out/porteira-do-ceu-3d.mp4 --gl=angle",
+    "render:3d-musica": "remotion render src/index.ts Garrafa3DMusica out/porteira-do-ceu-3d-so-musica.mp4 --gl=angle",
+    "musica": "python tools/music.py 38.2"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@react-three/fiber": "^8.17.10",
     "@remotion/cli": "^4.0.535",
     "@remotion/google-fonts": "^4.0.535",
+    "@remotion/three": "^4.0.535",
     "@remotion/transitions": "^4.0.535",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "remotion": "^4.0.535"
+    "remotion": "^4.0.535",
+    "three": "^0.169.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.31",
+    "@types/three": "^0.169.0",
     "typescript": "^7.0.2"
   }
 }

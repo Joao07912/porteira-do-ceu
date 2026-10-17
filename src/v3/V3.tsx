@@ -143,8 +143,8 @@ const Caminho: React.FC = () => {
   const mochila = wordFrame("caminho", "mochila");
   // coreografia: anda → para → pega a garrafa e bebe → devolve e fica parado
   const stopAt = wordFrame("caminho", "E") - 22;
-  const drinkFrom = stopAt + 18;
-  const drinkLen = 74;
+  const drinkFrom = stopAt + 16;
+  const drinkLen = 92;
   const walkW = (f: number) => interpolate(f, [stopAt, stopAt + 24], [1, 0], { ...clamp, easing: Easing.inOut(Easing.sin) });
   const CYCLE = 38; // frames por ciclo (2 passos)
   let phase = 0.15;

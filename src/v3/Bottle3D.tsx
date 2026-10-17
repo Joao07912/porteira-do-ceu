@@ -7,8 +7,8 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 
 // Garrafa 600 ml em 3D. Unidade: raio do corpo = 1.
 // Garrafa de alumínio 600 ml, medida a partir das fotos. Unidade: raio do corpo = 1.
-// Arte: volta inteira e cobre todo o corpo, da base até o ombro (como na sublimação real).
-const LABEL_H = 3.96;
+// Arte: volta inteira e cobre o corpo todo, da base até a curva do ombro (como na sublimação real).
+const LABEL_TOP_R = 0.84; // a estampa sobe pelo ombro até este raio
 const LABEL_Y = 0.13;
 const SHOULDER_Y = 4.1;
 const NECK_R = 0.74;
@@ -20,6 +20,9 @@ const useArtTexture = () => {
     new THREE.TextureLoader().load(staticFile("Arte.jpg"), (t) => {
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = 8;
+      // corta o excesso de branco da arte (mantém as folhinhas e a onda azul)
+      t.repeat.set(1, (689 - 58) / 689);
+      t.offset.set(0, 34 / 689);
       setTex(t);
     });
   }, []);
@@ -49,6 +52,33 @@ const Studio: React.FC = () => {
 };
 
 
+// superfície da estampa: segue o perfil do corpo (reto + ombro), reamostrada por comprimento de arco
+// pra arte não esticar no ombro
+const labelGeometry = () => {
+  const raw: [number, number][] = [];
+  for (let i = 0; i <= 40; i++) raw.push([1, LABEL_Y + ((SHOULDER_Y - LABEL_Y) * i) / 40]);
+  const aMax = Math.acos((LABEL_TOP_R - NECK_R) / (1 - NECK_R));
+  for (let i = 1; i <= 30; i++) {
+    const a = (aMax * i) / 30;
+    raw.push([NECK_R + (1 - NECK_R) * Math.cos(a), SHOULDER_Y + 0.68 * Math.sin(a)]);
+  }
+  const cum = [0];
+  for (let i = 1; i < raw.length; i++)
+    cum.push(cum[i - 1] + Math.hypot(raw[i][0] - raw[i - 1][0], raw[i][1] - raw[i - 1][1]));
+  const total = cum[cum.length - 1];
+  const pts: THREE.Vector2[] = [];
+  const N = 140;
+  for (let k = 0; k <= N; k++) {
+    const target = (total * k) / N;
+    let i = 1;
+    while (i < cum.length - 1 && cum[i] < target) i++;
+    const f = (target - cum[i - 1]) / (cum[i] - cum[i - 1] || 1);
+    const x = raw[i - 1][0] + (raw[i][0] - raw[i - 1][0]) * f;
+    const y = raw[i - 1][1] + (raw[i][1] - raw[i - 1][1]) * f;
+    pts.push(new THREE.Vector2(x * 1.004, y));
+  }
+  return new THREE.LatheGeometry(pts, 256, Math.PI / 2, Math.PI * 2);
+};
 const lathe = (pts: [number, number][], seg = 160) => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), seg);
 
 const bodyProfile = (): [number, number][] => {
@@ -122,10 +152,7 @@ const BottleMesh: React.FC<{ rotation: number; tilt: number }> = ({ rotation, ti
     () => lathe([[0, 5.57], [0.4, 5.57], [0.4, 5.62], [0.33, 5.63], [0.33, 6.06], [0.31, 6.11], [0.27, 6.13], [0, 6.13]]),
     [],
   );
-  const label = useMemo(
-    () => new THREE.CylinderGeometry(1.003, 1.003, LABEL_H, 256, 1, true, Math.PI / 2, Math.PI * 2),
-    [],
-  );
+  const label = useMemo(labelGeometry, []);
   const carabiner = useMemo(() => new THREE.TubeGeometry(carabinerCurve(), 160, 0.045, 14, true), []);
   return (
     <group rotation={[tilt, 0, 0]} position={[0, -3.0, 0]}>
@@ -134,7 +161,7 @@ const BottleMesh: React.FC<{ rotation: number; tilt: number }> = ({ rotation, ti
           <meshPhysicalMaterial color="#f4f3ef" metalness={0.35} roughness={0.12} clearcoat={1} clearcoatRoughness={0.04} />
         </mesh>
         {art && (
-          <mesh geometry={label} position={[0, LABEL_Y + LABEL_H / 2, 0]}>
+          <mesh geometry={label}>
             <meshPhysicalMaterial map={art} metalness={0.05} roughness={0.2} clearcoat={1} clearcoatRoughness={0.06} />
           </mesh>
         )}

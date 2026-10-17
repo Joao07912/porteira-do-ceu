@@ -167,42 +167,74 @@ const Boot: React.FC<{ f: Foot; ink: string; detail: string }> = ({ f, ink, deta
 
 export type PilgrimPose = ReturnType<typeof posePilgrim>;
 
+// interpolação por keyframes com ease-in-out em cada trecho
+const keys = (x: number, ks: number[], vs: number[]) =>
+  interpolate(x, ks, vs, { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+const keysV = (x: number, ks: number[], ps: V[]) =>
+  v(
+    keys(
+      x,
+      ks,
+      ps.map((p) => p.x),
+    ),
+    keys(
+      x,
+      ks,
+      ps.map((p) => p.y),
+    ),
+  );
+// vetor "para cima" da garrafa desenhada com rotate(angle)
+const bottleUp = (angle: number) => v(Math.sin(angle * deg), -Math.cos(angle * deg));
+
+// momentos da ação de beber (0..1)
+const D = [0, 0.1, 0.16, 0.26, 0.36, 0.56, 0.64, 0.7, 0.8, 0.87, 0.92, 1];
+const HELD_FROM = D[1];
+const HELD_TO = D[10];
+
 export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; drink: number; frame: number }) => {
   const a = 60 * w; // meia passada
   const lift = 24 * w;
-  const nearFoot = footAt(t, a, lift, 6);
-  const farFoot = footAt(t + 0.5, a, lift, -8);
+  const nearFoot = footAt(t, a, lift, 8);
+  const farFoot = footAt(t + 0.5, a, lift, -10);
+  const cyc = 2 * Math.PI * t;
 
-  // quadril: sobe no meio do apoio; nunca alto demais pra perna alcançar
-  const bob = Math.cos(4 * Math.PI * (t - 0.3)) * 4 * w;
+  // quadril: sobe no meio do apoio; antecipação (dobra os joelhos) ao pegar e prender a garrafa
+  const bob = Math.cos(2 * cyc - 2 * Math.PI * 0.6) * 4 * w;
+  const dip = keys(drink, D, [0, 5, 3, 0, 0, 0, 0, 0, 0, 5, 2, 0]);
   const reach = (f: Foot, hx: number) =>
     f.ankle.y - Math.sqrt(Math.max(0, (THIGH + SHIN - 3) ** 2 - (f.ankle.x - hx) ** 2));
-  const hipX = 0;
-  const hipY = Math.max(-197 - bob - 3 * (1 - w), reach(nearFoot, hipX + 4), reach(farFoot, hipX - 4));
+  const pelvisTurn = 5 * Math.sin(cyc) * w; // pelve gira junto com a perna que avança
+  const hipNear0 = v(4 + pelvisTurn, 0);
+  const hipFar0 = v(-4 - pelvisTurn, 0);
+  const hipY = Math.max(-197 - bob - 3 * (1 - w) + dip, reach(nearFoot, hipNear0.x), reach(farFoot, hipFar0.x));
   const breath = Math.sin(fr / 22) * (1 - w);
-  const pelvis = v(hipX, hipY + breath * 1.2);
+  const pelvis = v(0, hipY + breath * 1.2);
 
+  // tronco: inclina pra frente andando, pra trás ao beber
   const lean =
-    8 * w +
-    2 +
-    breath * 0.8 +
-    Math.sin(4 * Math.PI * t) * 1.2 * w -
-    9 * ramp(drink, 0.25, 0.4) * (1 - ramp(drink, 0.7, 0.85));
+    8 * w + 2 + breath * 0.8 + Math.sin(2 * cyc) * 1.2 * w + keys(drink, D, [0, 4, 3, -1, -6, -9, -4, 1, 1, 4, 2, 0]);
   const spineUp = -90 + lean;
   const S = frame(pelvis, spineUp);
   const chest = S(80, 0);
   const neckBase = S(124, 2);
-  const shoulder = S(112, -4);
+  const counter = -3.5 * Math.sin(cyc) * w; // ombros em contraposição à pelve
+  const shoulder = S(112, -4 + counter);
+  const shoulderFar = S(110, -10 - counter);
 
-  // cabeça estabilizada + inclinação ao beber
-  const sip = ramp(drink, 0.3, 0.42) * (1 - ramp(drink, 0.68, 0.8));
-  const headUp = spineUp - lean * 0.7 - 24 * sip + Math.sin(4 * Math.PI * t + 1) * 1.5 * w;
+  // cabeça: estabilizada na caminhada; olha pra garrafa, inclina pra beber, goles
+  const gulps =
+    Math.sin(((drink - D[4]) / (D[5] - D[4])) * Math.PI * 6) *
+    2.2 *
+    ramp(drink, D[4], D[4] + 0.03) *
+    (1 - ramp(drink, D[5] - 0.03, D[5]));
+  const look = keys(drink, D, [0, 16, 12, 2, -20, -30, -10, 14, 16, 16, 6, 0]);
+  const headUp = spineUp - lean * 0.75 + look + gulps + Math.sin(2 * cyc + 1) * 1.5 * w;
   const headC = add(neckBase, mul(dir(headUp), 26));
   const H = frame(headC, headUp);
 
   // pernas
-  const hipNear = add(pelvis, v(4, 0));
-  const hipFar = add(pelvis, v(-4, 0));
+  const hipNear = add(pelvis, hipNear0);
+  const hipFar = add(pelvis, hipFar0);
   const legNear = ik(hipNear, nearFoot.ankle, THIGH, SHIN, -1);
   const legFar = ik(hipFar, farFoot.ankle, THIGH, SHIN, -1);
 
@@ -211,37 +243,62 @@ export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; 
   const plant = 0.55;
   let tip: V;
   if (sp < plant) {
-    tip = v(lerp(64, -40, sp / plant) * w + 34 * (1 - w), 0);
+    tip = v(lerp(64, -40, sp / plant) * w + 40 * (1 - w), 0);
   } else {
     const s = (sp - plant) / (1 - plant);
-    tip = v(lerp(-40, 64, Easing.inOut(Easing.quad)(s)) * w + 34 * (1 - w), -Math.sin(Math.PI * s) * 18 * w);
+    tip = v(lerp(-40, 64, Easing.inOut(Easing.quad)(s)) * w + 40 * (1 - w), -Math.sin(Math.PI * s) * 18 * w);
   }
-  const shoulderFar = add(shoulder, v(-6, 2));
-  const grip0 = add(shoulderFar, v(40 + 10 * w * Math.sin(2 * Math.PI * t), 58));
+  const grip0 = add(shoulderFar, v(40 + 10 * w * Math.sin(cyc), 58));
   const staffDir = mul(sub(grip0, tip), 1 / len(sub(grip0, tip)));
   const grip = add(tip, mul(staffDir, Math.min(len(sub(grip0, tip)), 190)));
   const staffTop = add(grip, mul(staffDir, 150));
   const armFar = ik(shoulderFar, grip, UPPER, FORE, 1);
 
-  // braço da frente: balanço natural ou ação de beber
-  const swing = 16 * w * Math.cos(2 * Math.PI * (t + 0.5) - 0.35);
+  // braço da frente andando: ombro → cotovelo com atraso → punho com mais atraso
+  const swing = 17 * w * Math.cos(cyc + Math.PI - 0.3);
   const upperDir = 90 - swing;
   const elbowW = add(shoulder, mul(dir(upperDir), UPPER));
-  const handWalk = add(elbowW, mul(dir(upperDir - 14 - Math.max(0, swing) * 1.4), FORE));
+  const foreDir = upperDir - 12 - Math.max(0, 17 * w * Math.cos(cyc + Math.PI - 0.75)) * 1.5;
+  const handWalk = add(elbowW, mul(dir(foreDir), FORE));
 
+  // garrafa pendurada: pêndulo com o passo
   const beltAnchor = S(14, 24);
-  const pend = Math.sin(4 * Math.PI * t - 0.8) * 9 * w + Math.sin(fr / 9) * 1.5;
-  const mouth = H(-8, 24);
-  const atMouth = add(mouth, v(26, 8));
-  const grabW = ramp(drink, 0.04, 0.2) * (1 - ramp(drink, 0.9, 1));
-  const toMouth = ramp(drink, 0.2, 0.38) * (1 - ramp(drink, 0.72, 0.88));
+  const pend = Math.sin(2 * cyc - 0.8) * 9 * w + Math.sin(fr / 9) * 1.5;
   const hanging = add(beltAnchor, mul(dir(90 - pend), 34));
-  const handTarget = lerpV(lerpV(handWalk, hanging, grabW), atMouth, toMouth);
-  const armNear = ik(shoulder, handTarget, UPPER, FORE, 1);
-  const held = grabW > 0.98 || toMouth > 0;
-  const bottleAngle = held ? -112 * toMouth + Math.sin(fr / 5) * 4 * sip : -pend;
-  const bottleCenter = held ? add(armNear.end, mul(dir(bottleAngle - 90), -2)) : hanging;
+  // a mão segura a garrafa no terço de baixo (a estampa continua aparecendo)
+  const GRIP = 18;
+  const gripOf = (center: V, ang: number) => sub(center, mul(bottleUp(ang), GRIP));
+  const hangGrip = gripOf(hanging, -pend);
 
+  // ação de beber: alvo da mão (centro da garrafa) e ângulo da garrafa em cada momento
+  const angles = [-pend, 0, 0, -38, -104, -130, -60, -10, -6, 0, 0, -pend];
+  const angle = keys(drink, D, angles) + gulps * 1.5;
+  const mouth = H(-9, 25);
+  const atMouth = (ang: number) => sub(mouth, mul(bottleUp(ang), 54 + GRIP));
+  const handKeys = [
+    handWalk,
+    hangGrip,
+    add(hangGrip, v(2, -8)), // puxão pra soltar do mosquetão
+    S(72, 58), // arco à frente do peito
+    atMouth(-104),
+    atMouth(-130),
+    S(84, 46),
+    S(70, 40), // admira a garrafa na frente do peito
+    S(72, 42),
+    add(hangGrip, v(2, -6)),
+    hangGrip,
+    handWalk,
+  ];
+  const handTarget = drink <= 0 ? handWalk : keysV(drink, D, handKeys);
+  const armNear = ik(shoulder, handTarget, UPPER, FORE, 1);
+  const held = drink > HELD_FROM && drink < HELD_TO;
+  const bottleAngle = held ? angle : -pend;
+  const bottleCenter = held ? add(armNear.end, mul(bottleUp(angle), GRIP)) : hanging;
+
+  // inércia: mochila e chapéu acompanham o corpo com atraso
+  const packLag = v(0, Math.cos(2 * cyc - 2 * Math.PI * 0.6 - 1.0) * 3 * w + dip * 0.4);
+  const packRot = Math.sin(2 * cyc - 1.4) * 1.6 * w;
+  const hatLag = Math.sin(2 * cyc - 1.8) * 1.4 * w - gulps * 0.6;
   return {
     nearFoot,
     farFoot,
@@ -268,6 +325,10 @@ export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; 
     held,
     // velocidade do chão (unidades por fase) — o corpo avança 2a/STANCE a cada ciclo
     stride: (2 * a) / STANCE,
+    packLag,
+    packRot,
+    hatLag,
+    headC,
   };
 };
 
@@ -338,6 +399,57 @@ const Bottle: React.FC<{ c: V; angle: number; glow: number }> = ({ c, angle, glo
           opacity={glow}
         />
       )}
+    </g>
+  );
+};
+// mão: punho fechado orientado pelo antebraço; segurando a garrafa, os dedos envolvem o corpo dela
+const Hand: React.FC<{ at: V; from: V; holding: number | null; ink: string; detail: string }> = ({
+  at,
+  from,
+  holding,
+  ink,
+  detail,
+}) => {
+  if (holding === null) {
+    const f = mul(sub(at, from), 1 / (len(sub(at, from)) || 1));
+    const n = v(-f.y, f.x);
+    const knuckle = add(at, mul(f, 6));
+    const thumb = add(add(at, mul(f, 4)), mul(n, -8));
+    return (
+      <g fill={ink}>
+        <path
+          d={blob([
+            add(at, mul(n, 9)),
+            add(knuckle, mul(n, 8)),
+            add(knuckle, mul(f, 7)),
+            add(knuckle, mul(n, -8)),
+            add(at, mul(n, -9)),
+            sub(at, mul(f, 6)),
+          ])}
+        />
+        <circle cx={thumb.x} cy={thumb.y} r={4.5} />
+      </g>
+    );
+  }
+  const up = bottleUp(holding);
+  const p = v(-up.y, up.x);
+  const fingers = [-7, -1, 5].map((k) => add(at, mul(up, k)));
+  return (
+    <g>
+      {fingers.map((c, i) => (
+        <path key={i} d={limb(sub(c, mul(p, 14)), add(c, mul(p, 12)), 3.6, 3.2, 0.5, 0.5)} fill={ink} />
+      ))}
+      <path d={limb(add(at, mul(up, 9)), add(add(at, mul(up, 13)), mul(p, 9)), 4, 3.4, 0, 0)} fill={ink} />
+      {fingers.map((c, i) => (
+        <path
+          key={`l${i}`}
+          d={`M ${c.x - p.x * 13} ${c.y - p.y * 13} L ${c.x + p.x * 11} ${c.y + p.y * 11}`}
+          stroke={detail}
+          strokeWidth={0.8}
+          opacity={0.6}
+        />
+      ))}
+      <circle cx={sub(at, mul(p, 14)).x} cy={sub(at, mul(p, 14)).y} r={9} fill={ink} />
     </g>
   );
 };
@@ -448,26 +560,30 @@ export const Pilgrim: React.FC<{
           <path d={limb(P.legFar.joint, P.farFoot.ankle, 14, 10, 4, 0)} fill={back} />
           <Boot f={P.farFoot} ink={back} detail="#2a1f1a" />
 
-          {/* mochila */}
-          <path d={roll} fill={ink} />
-          <path
-            d={`M ${S(116, -44).x} ${S(116, -44).y} L ${S(135, -44).x} ${S(135, -44).y} M ${S(116, -70).x} ${S(116, -70).y} L ${S(135, -70).x} ${S(135, -70).y}`}
-            stroke={detail}
-            strokeWidth={3}
-          />
-          <path d={pack} fill={ink} />
-          <path
-            d={`M ${S(92, -24).x} ${S(92, -24).y} Q ${S(96, -52).x} ${S(96, -52).y} ${S(110, -76).x} ${S(110, -76).y}`}
-            stroke={detail}
-            strokeWidth={3}
-            fill="none"
-          />
-          <path d={blob([S(44, -76), S(44, -94), S(80, -95), S(84, -78)])} fill={ink} />
-          <path
-            d={`M ${S(44, -80).x} ${S(44, -80).y} L ${S(84, -80).x} ${S(84, -80).y}`}
-            stroke={detail}
-            strokeWidth={2.5}
-          />
+          {/* mochila (com inércia) */}
+          <g
+            transform={`translate(${P.packLag.x} ${P.packLag.y}) rotate(${P.packRot} ${P.shoulder.x} ${P.shoulder.y})`}
+          >
+            <path d={roll} fill={ink} />
+            <path
+              d={`M ${S(116, -44).x} ${S(116, -44).y} L ${S(135, -44).x} ${S(135, -44).y} M ${S(116, -70).x} ${S(116, -70).y} L ${S(135, -70).x} ${S(135, -70).y}`}
+              stroke={detail}
+              strokeWidth={3}
+            />
+            <path d={pack} fill={ink} />
+            <path
+              d={`M ${S(92, -24).x} ${S(92, -24).y} Q ${S(96, -52).x} ${S(96, -52).y} ${S(110, -76).x} ${S(110, -76).y}`}
+              stroke={detail}
+              strokeWidth={3}
+              fill="none"
+            />
+            <path d={blob([S(44, -76), S(44, -94), S(80, -95), S(84, -78)])} fill={ink} />
+            <path
+              d={`M ${S(44, -80).x} ${S(44, -80).y} L ${S(84, -80).x} ${S(84, -80).y}`}
+              stroke={detail}
+              strokeWidth={2.5}
+            />
+          </g>
 
           {/* tronco */}
           <path d={torso} fill={ink} />
@@ -488,13 +604,15 @@ export const Pilgrim: React.FC<{
           {/* cabeça */}
           <path d={blob([P.neckBase, add(P.neckBase, v(8, -4)), H(-16, 8), H(-12, -16)])} fill={ink} />
           <path d={head} fill={ink} />
-          <path d={crown} fill={ink} />
-          <path d={brim} fill={ink} />
-          <path
-            d={`M ${H(17, -24).x} ${H(17, -24).y} L ${H(17, 24).x} ${H(17, 24).y}`}
-            stroke={detail}
-            strokeWidth={4}
-          />
+          <g transform={`rotate(${P.hatLag} ${P.headC.x} ${P.headC.y})`}>
+            <path d={crown} fill={ink} />
+            <path d={brim} fill={ink} />
+            <path
+              d={`M ${H(17, -24).x} ${H(17, -24).y} L ${H(17, 24).x} ${H(17, 24).y}`}
+              stroke={detail}
+              strokeWidth={4}
+            />
+          </g>
           <path
             d={`M ${H(4, -4).x} ${H(4, -4).y} Q ${H(-2, -8).x} ${H(-2, -8).y} ${H(-6, -2).x} ${H(-6, -2).y}`}
             stroke={detail}
@@ -531,9 +649,20 @@ export const Pilgrim: React.FC<{
           {/* braço da frente (+ garrafa na mão) */}
           <path d={limb(P.shoulder, P.armNear.joint, 14, 11, 2, 2)} fill={ink} />
           <path d={limb(P.armNear.joint, nearHand, 11, 8, 2, 1)} fill={ink} />
+          <path
+            d={`M ${P.armNear.joint.x - 6} ${P.armNear.joint.y - 4} q 6 6 12 2`}
+            stroke={detail}
+            strokeWidth={2}
+            fill="none"
+          />
           {P.held && <Bottle c={P.bottleCenter} angle={P.bottleAngle} glow={bottleGlow} />}
-          <circle cx={nearHand.x} cy={nearHand.y} r={10} fill={ink} />
-          <circle cx={nearHand.x + 6} cy={nearHand.y - 6} r={5} fill={ink} />
+          <Hand
+            at={nearHand}
+            from={P.armNear.joint}
+            holding={P.held ? P.bottleAngle : null}
+            ink={ink}
+            detail={detail}
+          />
         </g>
       </svg>
     </>

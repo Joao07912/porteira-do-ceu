@@ -266,7 +266,7 @@ export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; 
   const pend = Math.sin(2 * cyc - 0.8) * 9 * w + Math.sin(fr / 9) * 1.5;
   const hanging = add(beltAnchor, mul(dir(90 - pend), 34));
   // a mão segura a garrafa no terço de baixo (a estampa continua aparecendo)
-  const GRIP = 18;
+  const GRIP = 25; // segura na base, deixando a estampa à mostra
   const gripOf = (center: V, ang: number) => sub(center, mul(bottleUp(ang), GRIP));
   const hangGrip = gripOf(hanging, -pend);
 
@@ -334,10 +334,145 @@ export const posePilgrim = ({ t, w, drink, frame: fr }: { t: number; w: number; 
 
 // garrafa pequena com a estampa real (Arte.jpg) cobrindo o corpo inteiro
 const ART_W = 111; // largura da arte em unidades (comprimida como na sublimação)
+// estampa desenhada em vetor (frente da garrafa, 260 x 640), fiel à arte da Porteira do Céu
+const LabelArt: React.FC<{ id: string }> = ({ id }) => {
+  const navy = "#24427a";
+  const wood = "#8a5a32";
+  const woodDark = "#5e3a1e";
+  const plank = "#efe3c6";
+  const leaf = (x: number, y: number, r: number, flip = 1) => (
+    <g transform={`translate(${x} ${y}) rotate(${r}) scale(${flip} 1)`} fill={navy}>
+      <path d="M 0 0 L 34 0" stroke={navy} strokeWidth={2.5} />
+      {[6, 14, 22, 30].map((k) => (
+        <g key={k}>
+          <ellipse cx={k} cy={-5} rx={4.5} ry={2.2} transform={`rotate(-35 ${k} -5)`} />
+          <ellipse cx={k} cy={5} rx={4.5} ry={2.2} transform={`rotate(35 ${k} 5)`} />
+        </g>
+      ))}
+    </g>
+  );
+  return (
+    <g>
+      <defs>
+        <linearGradient id={`sky-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#7d98c4" />
+          <stop offset="0.45" stopColor="#e9a86a" />
+          <stop offset="0.8" stopColor="#f6c56f" />
+          <stop offset="1" stopColor="#fbe0a0" />
+        </linearGradient>
+        <radialGradient id={`sun-${id}`}>
+          <stop offset="0" stopColor="#fffbe6" />
+          <stop offset="0.35" stopColor="#ffe9a8" stopOpacity={0.9} />
+          <stop offset="1" stopColor="#ffd27a" stopOpacity={0} />
+        </radialGradient>
+        <linearGradient id={`grass-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#c99a3e" />
+          <stop offset="1" stopColor="#8a5f26" />
+        </linearGradient>
+      </defs>
+      <rect width={260} height={640} fill="#f7f6f2" />
+      {/* cena (subida pra porteira não ficar atrás da mão) */}
+      <g transform="translate(0 -78)">
+      <rect y={62} width={260} height={300} fill={`url(#sky-${id})`} />
+      <ellipse cx={70} cy={150} rx={60} ry={9} fill="#f3c08a" opacity={0.7} />
+      <ellipse cx={190} cy={120} rx={70} ry={10} fill="#efb98d" opacity={0.6} />
+      <ellipse cx={210} cy={190} rx={50} ry={7} fill="#f6cf8f" opacity={0.7} />
+      <circle cx={168} cy={300} r={70} fill={`url(#sun-${id})`} />
+      <circle cx={168} cy={300} r={17} fill="#fff6d6" />
+      <path d="M 0 300 Q 40 280 80 296 T 160 290 T 260 286 L 260 340 L 0 340 Z" fill="#8f7898" />
+      <path d="M 0 322 Q 50 300 110 318 T 260 310 L 260 360 L 0 360 Z" fill="#6f8a55" />
+      <path d="M 0 346 Q 70 330 140 344 T 260 338 L 260 380 L 0 380 Z" fill="#55703a" />
+      <rect y={372} width={260} height={300} fill={`url(#grass-${id})`} />
+      {/* árvore no canto esquerdo */}
+      <path d="M -6 70 Q 30 90 22 160 L 30 380 L 6 380 L 4 170 Q 0 110 -6 100 Z" fill="#6a4426" />
+      {[
+        [10, 70, 34],
+        [44, 62, 30],
+        [78, 72, 26],
+        [26, 100, 28],
+        [60, 96, 22],
+        [104, 66, 18],
+      ].map(([x, y, r], i) => (
+        <circle key={i} cx={x} cy={y} r={r} fill={i % 2 ? "#4f6b2c" : "#5d7a33"} />
+      ))}
+      {/* toco com suporte de ferro e sininho */}
+      <rect x={34} y={250} width={24} height={300} rx={3} fill={wood} />
+      <path d="M 40 262 L 42 540 M 51 258 L 50 545" stroke={woodDark} strokeWidth={2} />
+      <path
+        d="M 58 268 L 92 268 Q 104 268 104 282"
+        stroke="#2a2522"
+        strokeWidth={4}
+        fill="none"
+        strokeLinecap="round"
+      />
+      <path d="M 58 282 Q 74 282 74 272" stroke="#2a2522" strokeWidth={3} fill="none" />
+      <path
+        d="M 104 284 Q 92 284 92 300 Q 92 310 86 314 L 122 314 Q 116 310 116 300 Q 116 284 104 284 Z"
+        fill="#d9a23c"
+      />
+      <path d="M 96 296 Q 97 289 102 288" stroke="#fbe2a0" strokeWidth={2.5} fill="none" />
+      <circle cx={104} cy={320} r={4} fill="#a87a24" />
+      {/* porteira azul com tábuas e a placa */}
+      <rect x={58} y={392} width={14} height={160} fill={navy} />
+      <rect x={250} y={392} width={14} height={160} fill={navy} />
+      <rect x={66} y={400} width={194} height={30} rx={3} fill={plank} stroke="#b9a37c" strokeWidth={1.5} />
+      <text
+        x={163}
+        y={421}
+        textAnchor="middle"
+        fontFamily="Arial, sans-serif"
+        fontWeight={700}
+        fontSize={16}
+        fill={navy}
+      >
+        PORTEIRA DO CÉU
+      </text>
+      {[446, 478, 510].map((y) => (
+        <rect key={y} x={66} y={y} width={194} height={22} rx={2} fill={plank} stroke="#b9a37c" strokeWidth={1.5} />
+      ))}
+      <path d="M 74 540 L 160 438 L 250 540" stroke={navy} strokeWidth={11} fill="none" />
+      <rect x={154} y={432} width={12} height={112} fill={navy} />
+      {[
+        [64, 410],
+        [64, 530],
+        [256, 410],
+        [256, 530],
+      ].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={2.5} fill="#1b1b1b" />
+      ))}
+      {/* Nossa Senhora Aparecida na borda direita */}
+      <g transform="translate(236 228)">
+        <path d="M 0 0 L 30 130 L -30 130 Z" fill="#3c63a8" />
+        <path d="M 0 6 L 14 70 L -14 70 Z" fill="#6b4a2e" />
+        <path d="M -12 130 L -12 96 Q 0 82 12 96 L 12 130 Z" fill="#f3efe4" />
+        <path d="M -10 -4 L -8 -18 L -3 -10 L 0 -22 L 3 -10 L 8 -18 L 10 -4 Z" fill="#e2b13c" />
+        <path d="M 0 -22 L 0 -32 M -4 -28 L 4 -28" stroke="#e2b13c" strokeWidth={2.5} />
+      </g>
+      {/* capim em primeiro plano */}
+      {Array.from({ length: 18 }).map((_, i) => (
+        <path
+          key={i}
+          d={`M ${i * 15} 650 q 3 -30 ${8 + (i % 3) * 3} -46 q -2 22 4 46 Z`}
+          fill={i % 2 ? "#a77a2e" : "#c39440"}
+        />
+      ))}
+      </g>
+      {/* faixas brancas com a onda azul e as folhinhas (em cima e embaixo) */}
+      <path d="M 0 0 L 260 0 L 260 52 Q 200 70 130 58 Q 60 46 0 66 Z" fill="#f7f6f2" />
+      <path d="M 0 66 Q 60 46 130 58 Q 200 70 260 52" stroke={navy} strokeWidth={5} fill="none" />
+      {leaf(96, 34, 0)}
+      <path d="M 0 640 L 260 640 L 260 572 Q 190 590 120 578 Q 50 566 0 584 Z" fill="#f7f6f2" />
+      <path d="M 0 584 Q 50 566 120 578 Q 190 590 260 572" stroke={navy} strokeWidth={5} fill="none" />
+      {leaf(70, 612, 0)}
+      {leaf(196, 612, 180, -1)}
+    </g>
+  );
+};
+
 const Bottle: React.FC<{ c: V; angle: number; glow: number }> = ({ c, angle, glow }) => {
   const id = useId().replace(/:/g, "");
   return (
-    <g transform={`translate(${c.x} ${c.y}) rotate(${angle}) scale(1.3)`}>
+    <g transform={`translate(${c.x} ${c.y}) rotate(${angle})`}>
       <defs>
         <clipPath id={`bb-${id}`}>
           <rect x={-13} y={-30} width={26} height={64} rx={6} />
@@ -355,14 +490,9 @@ const Bottle: React.FC<{ c: V; angle: number; glow: number }> = ({ c, angle, glo
       <path d="M -13 -26 Q -13 -36 -10 -38 L 10 -38 Q 13 -36 13 -26 Z" fill="#f1efea" />
       <rect x={-13} y={-30} width={26} height={64} rx={6} fill="#f1efea" />
       <g clipPath={`url(#bb-${id})`}>
-        <image
-          href={staticFile("Arte.jpg")}
-          x={-ART_W * 0.44}
-          y={-30}
-          width={ART_W}
-          height={64}
-          preserveAspectRatio="none"
-        />
+        <g transform="translate(-13 -30) scale(0.1)">
+          <LabelArt id={id} />
+        </g>
         <rect x={-13} y={-38} width={26} height={72} fill={`url(#bs-${id})`} />
       </g>
       <path d="M -13 -26 Q -13 -36 -10 -38 L 10 -38 Q 13 -36 13 -26 Z" fill={`url(#bs-${id})`} />

@@ -1,4 +1,4 @@
-import { loadFont as loadDisplay } from "@remotion/google-fonts/Archivo";
+﻿import { loadFont as loadDisplay } from "@remotion/google-fonts/Archivo";
 import { loadFont as loadMono } from "@remotion/google-fonts/JetBrainsMono";
 import { Easing, interpolate, useCurrentFrame } from "remotion";
 
@@ -122,20 +122,43 @@ export const Body: React.FC<{
   );
 };
 
-// Ícone da porteira (marca tipográfica, já que a loja ainda não tem logo).
+// Marca da Porteira do Céu: porteira azul, toco de madeira com sininho e o sol nascendo atrás.
 export const GateMark: React.FC<{ size: number; color?: string; accent?: string }> = ({
   size,
   color = palette.navy,
   accent = palette.orange,
-}) => (
-  <svg viewBox="0 0 120 90" width={size} height={(size * 90) / 120}>
-    <path d="M14 44 A46 46 0 0 1 106 44" fill="none" stroke={accent} strokeWidth={5} strokeLinecap="round" />
-    <circle cx={60} cy={44} r={10} fill={accent} />
-    <rect x={10} y={40} width={9} height={46} rx={2} fill={color} />
-    <rect x={101} y={40} width={9} height={46} rx={2} fill={color} />
-    {[50, 63, 76].map((y) => (
-      <rect key={y} x={19} y={y} width={82} height={6} rx={1} fill={color} />
-    ))}
-    <path d="M22 84 L60 50 L98 84" fill="none" stroke={color} strokeWidth={6} />
-  </svg>
-);
+}) => {
+  const wood = "#7a4a2a";
+  const woodDark = "#55321b";
+  const gold = "#d9a23c";
+  return (
+    <svg viewBox="0 0 170 120" width={size} height={(size * 120) / 170}>
+      {/* sol nascendo atrás da porteira */}
+      <path d="M 62 78 A 44 44 0 0 1 150 78 Z" fill={accent} opacity={0.18} />
+      <path d="M 70 78 A 36 36 0 0 1 142 78" fill="none" stroke={accent} strokeWidth={5} strokeLinecap="round" />
+      <circle cx={106} cy={66} r={11} fill={accent} />
+      {/* toco de madeira com veios */}
+      <path d="M 14 116 L 14 16 Q 14 9 21 8 L 31 9 Q 35 10 35 16 L 35 116 Z" fill={wood} />
+      <path d="M 20 24 Q 18 60 21 110 M 28 18 Q 30 56 27 112" stroke={woodDark} strokeWidth={1.6} fill="none" opacity={0.8} />
+      <ellipse cx={24.5} cy={10} rx={10.5} ry={3} fill={woodDark} />
+      <path d="M 14 30 h 21 M 14 34 h 21" stroke={woodDark} strokeWidth={2.2} />
+      {/* suporte de ferro em espiral */}
+      <path d="M 35 22 L 56 22 Q 64 22 63 30" stroke="#2a2522" strokeWidth={3} fill="none" strokeLinecap="round" />
+      <path d="M 35 32 Q 46 32 46 24 Q 46 18 40 19 Q 36 21 39 25" stroke="#2a2522" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+      {/* sininho */}
+      <line x1={63} y1={30} x2={63} y2={35} stroke="#2a2522" strokeWidth={2} />
+      <path d="M 63 34 Q 55 34 55 44 Q 55 50 51 53 L 75 53 Q 71 50 71 44 Q 71 34 63 34 Z" fill={gold} />
+      <path d="M 58 40 Q 58 36 61 35.5" stroke="#f6dc9a" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+      <rect x={50} y={52} width={26} height={3.2} rx={1.6} fill="#b7832a" />
+      <circle cx={63} cy={57.5} r={2.6} fill="#b7832a" />
+      {/* porteira */}
+      <rect x={40} y={60} width={8} height={56} rx={1.5} fill={color} />
+      <rect x={152} y={60} width={8} height={56} rx={1.5} fill={color} />
+      {[66, 79, 92, 105].map((y) => (
+        <rect key={y} x={48} y={y} width={104} height={7} rx={1.2} fill={color} />
+      ))}
+      <path d="M 50 113 L 100 70 L 150 113" fill="none" stroke={color} strokeWidth={6} strokeLinejoin="round" />
+      <rect x={97} y={64} width={6} height={50} fill={color} />
+    </svg>
+  );
+};

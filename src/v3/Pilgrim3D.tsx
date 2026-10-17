@@ -15,19 +15,22 @@ import { BottleMesh } from "./Bottle3D";
  * o braço direito é controlado por IK pra pegar a garrafa e beber.
  */
 
-const MODEL = "v3/models/Soldier.glb";
+const MODEL = "v3/models/Xbot.glb";
 export const PX_PER_M = 480; // escala da câmera ortográfica
-export const WALK_CYCLE_S = 1.0333; // duração do ciclo de andar do mocap
-export const WALK_SPEED = 1.71; // m/s do pé de apoio (medido com measureWalk)
+export const WALK_CYCLE_S = 0.9667; // duração do ciclo de andar do mocap
+export const WALK_SPEED = 1.557; // m/s do pé de apoio (medido com measureWalk)
 
-type Loaded = { scene: THREE.Object3D; walk: THREE.AnimationClip; idle: THREE.AnimationClip };
+type Loaded = { scene: THREE.Object3D; walk: THREE.AnimationClip; idle: THREE.AnimationClip; nod: THREE.AnimationClip };
 let cache: Promise<Loaded> | null = null;
 const loadModel = () => {
   if (!cache) {
     cache = new GLTFLoader().loadAsync(staticFile(MODEL)).then((g) => {
       const find = (n: string) => g.animations.find((a) => a.name === n)!;
       // o mocap já anda no lugar (o quadril não avança); o chão é que se move
-      return { scene: g.scene, walk: find("Walk"), idle: find("Idle") };
+      // "agree" (aceno de cabeça) entra como camada aditiva por cima do parado
+      const nod = find("agree").clone();
+      THREE.AnimationUtils.makeClipAdditive(nod);
+      return { scene: g.scene, walk: find("walk"), idle: find("idle"), nod };
     });
   }
   return cache;
@@ -88,7 +91,7 @@ const solveElbow = (s: THREE.Vector3, t: THREE.Vector3, l1: number, l2: number, 
 };
 
 const keys = (x: number, ks: number[], vs: number[]) =>
-  interpolate(x, ks, vs, { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+  interpolate(x, ks, vs, { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.bezier(0.45, 0, 0.22, 1) });
 
 // momentos da ação de beber (0..1): pega, solta, leva, bebe, abaixa, admira, prende
 export const DRINK_KEYS = [0, 0.1, 0.16, 0.27, 0.36, 0.56, 0.64, 0.7, 0.8, 0.87, 0.92, 1];
@@ -165,10 +168,40 @@ const Rig: React.FC<Pilgrim3DProps & { rim: string }> = ({ phase, walk, drink, t
     const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.02, 1, 16), mat);
     const bottle = new THREE.Group();
     const strap = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 1, 8), new THREE.MeshStandardMaterial({ color: "#b9bec2", metalness: 1, roughness: 0.3 }));
+    // roupa: volumes presos aos ossos (camisa, mangas, calça, botas) pra silhueta de pessoa vestida
+    const shellPairs: [string, string, number][] = [
+      ["Hips", "Neck", 0.145],
+      ["Neck", "Head", 0.055],
+      ["LeftArm", "LeftForeArm", 0.056],
+      ["LeftForeArm", "LeftHand", 0.046],
+      ["RightArm", "RightForeArm", 0.056],
+      ["RightForeArm", "RightHand", 0.046],
+      ["LeftUpLeg", "LeftLeg", 0.083],
+      ["LeftLeg", "LeftFoot", 0.064],
+      ["RightUpLeg", "RightLeg", 0.083],
+      ["RightLeg", "RightFoot", 0.064],
+      ["LeftFoot", "LeftToeBase", 0.052],
+      ["LeftToeBase", "LeftToe_End", 0.042],
+      ["RightFoot", "RightToeBase", 0.052],
+      ["RightToeBase", "RightToe_End", 0.042],
+    ];
+    model.updateMatrixWorld(true);
+    const shells = shellPairs.map(([a, c, r]) => {
+      const A = b(a);
+      const C = b(c);
+      const L = wp(A).distanceTo(wp(C));
+      const mesh = new THREE.Mesh(new THREE.CapsuleGeometry(r, Math.max(0.001, L), 6, 20), mat);
+      return { A, C, mesh };
+    });
+    const headShell = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), mat);
     const scene = new THREE.Group();
-    model.rotation.y = -Math.PI / 2; // olha para +x
+    shells.forEach((s) => scene.add(s.mesh));
+    scene.add(headShell);
+    model.rotation.y = Math.PI / 2; // olha para +x
     scene.add(model, hat, pack, staff, bottle, strap);
-    return { scene, model, mixer, walkA, idleA, bones, fingers, hat, pack, staff, bottle, strap };
+    const nodA = mixer.clipAction(data.nod);
+    nodA.play();
+    return { scene, model, mixer, walkA, idleA, nodA, bones, fingers, hat, pack, staff, bottle, strap, shells, headShell };
   }, [data, rim]);
 
   useEffect(() => {
@@ -180,6 +213,10 @@ const Rig: React.FC<Pilgrim3DProps & { rim: string }> = ({ phase, walk, drink, t
   if (rig) {
     const { model, mixer, walkA, idleA, bones: B } = rig;
     model.position.set(x, 0, 0);
+    // aceno de cabeça satisfeito ao admirar a garrafa (camada aditiva do mocap "agree")
+    const nodW = interpolate(drink, [0.66, 0.7, 0.82, 0.86], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    rig.nodA.setEffectiveWeight(nodW * 0.7);
+    rig.nodA.time = interpolate(drink, [0.68, 0.84], [0, rig.nodA.getClip().duration * 0.55], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
     walkA.setEffectiveWeight(walk);
     idleA.setEffectiveWeight(1 - walk);
     walkA.time = (((phase % 1) + 1) % 1) * rig.walkA.getClip().duration;
@@ -191,12 +228,13 @@ const Rig: React.FC<Pilgrim3DProps & { rim: string }> = ({ phase, walk, drink, t
     const d = drink;
     // coluna e cabeça: inclina pra trás ao beber, olha pra garrafa ao pegar/admirar
     rotateWorld(B.spine1, Z, keys(d, DRINK_KEYS, [0, -0.05, -0.03, 0.02, 0.06, 0.08, 0.04, -0.02, -0.02, -0.05, -0.02, 0]));
-    rotateWorld(B.neck, Z, keys(d, DRINK_KEYS, [0, -0.12, -0.08, 0, 0.12, 0.16, 0.05, -0.14, -0.15, -0.14, -0.06, 0]));
+    const dHead = Math.min(1, d + 0.025 * (d > 0 ? 1 : 0)); // a cabeça antecipa o braço
+    rotateWorld(B.neck, Z, keys(dHead, DRINK_KEYS, [0, -0.12, -0.08, 0, 0.12, 0.16, 0.05, -0.14, -0.15, -0.14, -0.06, 0]));
     const gulps =
       Math.sin(((d - DRINK_KEYS[4]) / (DRINK_KEYS[5] - DRINK_KEYS[4])) * Math.PI * 6) *
       0.05 *
       (d > DRINK_KEYS[4] && d < DRINK_KEYS[5] ? 1 : 0);
-    rotateWorld(B.head, Z, keys(d, DRINK_KEYS, [0, -0.08, -0.06, 0, 0.1, 0.14, 0.04, -0.1, -0.11, -0.08, -0.03, 0]) + gulps);
+    rotateWorld(B.head, Z, keys(dHead, DRINK_KEYS, [0, -0.08, -0.06, 0, 0.1, 0.14, 0.04, -0.1, -0.11, -0.08, -0.03, 0]) + gulps);
 
     // pontos de referência no corpo
     const hipP = wp(B.hips);
@@ -208,13 +246,14 @@ const Rig: React.FC<Pilgrim3DProps & { rim: string }> = ({ phase, walk, drink, t
 
     // garrafa pendurada no cinto (lado direito, de frente pra câmera)
     const pend = Math.sin(phase * Math.PI * 4 - 0.8) * 0.16 * walk + Math.sin(time * 3.3) * 0.03;
-    const belt = hipP.clone().add(V(0.12, 0.02, 0.17));
+    const belt = hipP.clone().add(V(0.07, 0.07, 0.15)); // cintura, lado direito
     const BOTTLE_H = 0.23;
     const GRIP = 0.06; // a mão segura no terço de baixo
-    const hangCenter = belt.clone().add(V(Math.sin(pend) * 0.13, -Math.cos(pend) * 0.13, 0));
+    const hangCenter = belt.clone().add(V(Math.sin(pend) * 0.125, -Math.cos(pend) * 0.125, 0));
     const angleKeys = [-pend, -pend, 0, 0.7, 1.75, 1.98, 1.0, 0.12, 0.08, 0, -pend, -pend]; // rad em torno de Z (+ = gargalo pra trás)
     const inAction = d > 0 && d < 1;
-    const angle = inAction ? keys(d, DRINK_KEYS, angleKeys) + gulps * 1.2 : -pend;
+    const dAngle = Math.max(0, d - 0.02); // a garrafa inclina logo depois do braço chegar
+    const angle = inAction ? keys(dAngle, DRINK_KEYS, angleKeys) + gulps * 1.2 : -pend;
     const axis = (ang: number) => V(-Math.sin(ang), Math.cos(ang), 0);
     const bUp = axis(angle);
     const shoulder = wp(B.rArm);
@@ -225,12 +264,12 @@ const Rig: React.FC<Pilgrim3DProps & { rim: string }> = ({ phase, walk, drink, t
       hangCenter,
       hangCenter,
       hangCenter.clone().add(V(0.01, 0.06, 0)), // puxão pra soltar do mosquetão
-      front(0.3, -0.16),
+      front(0.22, -0.14),
       mouthCenter(1.75),
       mouthCenter(1.98),
-      front(0.3, -0.12),
-      front(0.27, -0.26), // admira a garrafa na frente do peito
-      front(0.28, -0.24),
+      front(0.22, -0.12),
+      front(0.21, -0.24), // admira a garrafa na frente do peito
+      front(0.22, -0.22),
       hangCenter.clone().add(V(0.01, 0.05, 0)),
       hangCenter,
       hangCenter,
@@ -281,8 +320,20 @@ const Rig: React.FC<Pilgrim3DProps & { rim: string }> = ({ phase, walk, drink, t
       rig.strap.quaternion.setFromUnitVectors(V(0, 1, 0), topOfBottle.clone().sub(belt).normalize());
     }
     void held;
+    // roupa acompanha os ossos
+    model.updateMatrixWorld(true);
+    for (const s of rig.shells) {
+      const a = wp(s.A);
+      const c = wp(s.C);
+      s.mesh.position.copy(a.clone().add(c).multiplyScalar(0.5));
+      s.mesh.quaternion.setFromUnitVectors(V(0, 1, 0), c.clone().sub(a).normalize());
+    }
+    const headNow = wp(B.head);
+    const topNow = wp(B.headTop);
+    rig.headShell.position.copy(headNow.clone().lerp(topNow, 0.45));
+
     // chapéu
-    rig.hat.position.copy(top.clone().sub(up.clone().multiplyScalar(0.075)));
+    rig.hat.position.copy(top.clone().sub(up.clone().multiplyScalar(0.06)));
     rig.hat.quaternion.setFromUnitVectors(V(0, 1, 0), up);
 
     // mochila nas costas (segue a coluna)
@@ -291,7 +342,7 @@ const Rig: React.FC<Pilgrim3DProps & { rim: string }> = ({ phase, walk, drink, t
     const sUp = neckP.clone().sub(s2).normalize();
     const sFwd = V(1, 0, 0).sub(sUp.clone().multiplyScalar(sUp.x)).normalize();
     const side = new THREE.Vector3().crossVectors(sFwd, sUp);
-    rig.pack.position.copy(s2.clone().sub(sFwd.clone().multiplyScalar(0.21)).add(sUp.clone().multiplyScalar(-0.02)));
+    rig.pack.position.copy(s2.clone().sub(sFwd.clone().multiplyScalar(0.27)).add(sUp.clone().multiplyScalar(-0.04)));
     rig.pack.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(sFwd, sUp, side));
 
     // cajado na mão esquerda, ponta no chão à frente
@@ -359,7 +410,7 @@ const Env: React.FC = () => {
 export const measureWalk = async () => {
   const data = await loadModel();
   const model = SkeletonUtils.clone(data.scene);
-  model.rotation.y = -Math.PI / 2;
+  model.rotation.y = Math.PI / 2;
   const mixer = new THREE.AnimationMixer(model);
   const a = mixer.clipAction(data.walk);
   a.play();

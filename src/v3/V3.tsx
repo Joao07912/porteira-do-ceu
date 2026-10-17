@@ -116,7 +116,7 @@ const Marca: React.FC = () => {
         }}
       />
       <div style={{ transform: `scale(${mark})`, marginBottom: 40 }}>
-        <GateMark size={260} />
+        <GateMark size={340} />
       </div>
       <Line text="Porteira" at={wordFrame("marca", "Porteira") - 4} size={150} align="center" color={palette.navy} />
       <Line text="do Céu" at={wordFrame("marca", "Céu") - 6} size={150} align="center" color={palette.orange} />
@@ -144,7 +144,7 @@ const Caminho: React.FC = () => {
   // coreografia: anda → para → pega a garrafa e bebe → devolve e fica parado
   const stopAt = wordFrame("caminho", "E") - 22;
   const drinkFrom = stopAt + 16;
-  const drinkLen = 92;
+  const drinkLen = 100;
   const walkW = (f: number) => interpolate(f, [stopAt, stopAt + 24], [1, 0], { ...clamp, easing: Easing.inOut(Easing.sin) });
   let phase = 0.1;
   let travel = 0; // px que o chão andou
